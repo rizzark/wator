@@ -1,0 +1,28 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wator", "wator.vcproj", "{40144BDD-9509-48B5-A9CB-6A500D96CE21}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7B9CF1C-5D87-4A58-ACB0-C6C69A4E5B80} = {C7B9CF1C-5D87-4A58-ACB0-C6C69A4E5B80}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tkliblib", "..\..\tklib\VS2009\tkliblib.vcproj", "{C7B9CF1C-5D87-4A58-ACB0-C6C69A4E5B80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40144BDD-9509-48B5-A9CB-6A500D96CE21}.Debug|Win32.ActiveCfg = Debug|Win32
+		{40144BDD-9509-48B5-A9CB-6A500D96CE21}.Debug|Win32.Build.0 = Debug|Win32
+		{40144BDD-9509-48B5-A9CB-6A500D96CE21}.Release|Win32.ActiveCfg = Release|Win32
+		{40144BDD-9509-48B5-A9CB-6A500D96CE21}.Release|Win32.Build.0 = Release|Win32
+		{C7B9CF1C-5D87-4A58-ACB0-C6C69A4E5B80}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7B9CF1C-5D87-4A58-ACB0-C6C69A4E5B80}.Debug|Win32.Build.0 = Debug|Win32
+		{C7B9CF1C-5D87-4A58-ACB0-C6C69A4E5B80}.Release|Win32.ActiveCfg = Release|Win32
+		{C7B9CF1C-5D87-4A58-ACB0-C6C69A4E5B80}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
