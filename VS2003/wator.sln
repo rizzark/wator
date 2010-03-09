@@ -4,7 +4,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wator", "wator.vcproj", "{4
 		{9984D5DC-3C49-413A-9A6D-517393C27A6D} = {9984D5DC-3C49-413A-9A6D-517393C27A6D}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tkliblib", "..\tklib\VS2003\tkliblib.vcproj", "{9984D5DC-3C49-413A-9A6D-517393C27A6D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tkliblib", "..\..\tklib\VS2003\tkliblib.vcproj", "{9984D5DC-3C49-413A-9A6D-517393C27A6D}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
