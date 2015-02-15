@@ -95,25 +95,57 @@ bool WndDisplay::OnPaint()
 
 	try
 	{
+
 		tbase2::windows::gdi::DeviceContext dc(hdc);
+		tbase2::windows::gdi::Rect			rcClient;
+		
+		GetClientRect(rcClient);
+
+		tbase2::windows::gdi::Bitmap		bmpBuffer(dc,rcClient.width(),rcClient.height());
+		tbase2::windows::gdi::DeviceContext dcTmp(dc,bmpBuffer);
+
+		//Render(dc,rcClient.width(),rcClient.height());
+		Render(dcTmp,rcClient.width(),rcClient.height());
+		BitBlt(dc,0,0,rcClient.width(),rcClient.height(),dcTmp,0,0,SRCCOPY);
+
+		EndPaint(*this,&ps); hdc=NULL;
+	}
+	catch(...)
+	{
+		EndPaint(*this,&ps); hdc=NULL;
+	}
+
+	return true;
+} // end - WndDisplay::OnPaint
+
+
+bool WndDisplay::OnDestroy()
+{
+	delete[] m_pcData; m_pcData=NULL;
+	return true;
+} // end - WndDisplay::OnDestroy
+
+
+void WndDisplay::Render(tbase2::windows::gdi::DeviceContext &dc,
+						const unsigned						width,
+						const unsigned						height)
+{
+	try
+	{
 		const size_t				sizData = m_uDataWidth * m_uDataHeight;
 		const COLORREF				crWhite = GetSysColor(COLOR_WINDOW);
 		tbase2::windows::gdi::Brush brWater(m_crWater);
 		tbase2::windows::gdi::Brush brFish(m_crFish);
 		tbase2::windows::gdi::Brush brShark(m_crShark);
-//		tbase2::windows::gdi::Brush brDiagram(m_
 		tbase2::windows::gdi::Pen   pnWater(PS_SOLID,1,m_crWater);
 		tbase2::windows::gdi::Pen   pnFish(PS_SOLID,1,m_crFish);
 		tbase2::windows::gdi::Pen   pnShark(PS_SOLID,1,m_crShark);
 		tbase2::windows::gdi::Pen	pnWhite(PS_SOLID,1,crWhite);
-		tbase2::windows::gdi::Rect	rcClient;
 		unsigned					x		= 0;
 		unsigned					y	    = 0;
 
-
-		GetClientRect(rcClient);
-		const unsigned uUnitW = rcClient.width() / m_uDataWidth;
-		const unsigned uUnitH = rcClient.height() / m_uDataHeight;
+		const unsigned uUnitW = width / m_uDataWidth;
+		const unsigned uUnitH = height / m_uDataHeight;
 
 		dc.SetPen(pnWhite);
 		for(unsigned u=0; u<sizData; u++)
@@ -145,19 +177,13 @@ bool WndDisplay::OnPaint()
 				y += uUnitH;
 			}
 		}
-		EndPaint(*this,&ps); hdc=NULL;
+	}
+	catch(std::exception &error)
+	{
+		tbase2::debug::Rethrow(__TFILE__,__LINE__,__TFUNCTION__,error);
 	}
 	catch(...)
 	{
-		EndPaint(*this,&ps); hdc=NULL;
+		throw tbase2::UnexpectedError(__TFILE__,__LINE__,__TFUNCTION__);
 	}
-
-	return true;
-} // end - WndDisplay::OnPaint
-
-
-bool WndDisplay::OnDestroy()
-{
-	delete[] m_pcData; m_pcData=NULL;
-	return true;
-} // end - WndDisplay::OnDestroy
+} // end - WndDisplay::Render

@@ -31,6 +31,11 @@ class WndDisplay : public tbase2::windows::gui::Wnd
 				virtual bool OnDestroy(
 				);
 
+				virtual void Render(tbase2::windows::gdi::DeviceContext &dc,
+									const unsigned						width,
+									const unsigned						height
+				);
+
 	private:	
 			char	 *m_pcData;
 			size_t	 m_sizData;
