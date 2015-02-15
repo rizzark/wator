@@ -1,19 +1,23 @@
+/********************************************************************************************************
+$Date$
+$Revision$
+$Author$
+$HeadURL$
+********************************************************************************************************/
+
+#pragma once
 
 #include "stdafx.h"
 #include "dlgsettings.h"
 #include "resource.h"
 
 #ifdef _DEBUG
-	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+	#define new DEBUG_NEW
 #endif
 
 
-TKW32_BEGIN_MESSAGETABLE(DlgSettings)
-TKW32_END_MESSAGETABLE(tkw32::Dlg)
-
-
 DlgSettings::DlgSettings(WatorSim   &ws,
-						 const bool flRestart) : tkw32::Dlg(GetModuleHandle(NULL),MAKEINTRESOURCE(DLG_WATOR)),
+						 const bool flRestart) : tbase2::windows::gui::Dlg(GetModuleHandle(NULL),MAKEINTRESOURCE(DLG_WATOR)),
 												 m_ws(ws),
 												 m_flRestart(flRestart)
 {
@@ -32,10 +36,12 @@ void DlgSettings::OnInitDialog()
 	EnableDlgItem(EDF_WATOR_FISHSTART,m_flRestart);
 	EnableDlgItem(EDF_WATOR_SHARKSTART,m_flRestart);
 
-	tkw32::Dlg::OnInitDialog();
+	ShowWindow(SW_SHOW);
+	SetActiveWindow();
+//	tbase2::windows::gui::Dlg::OnInitDialog();
 } // end - DlgSettings::OnInitDialog
 
-
+/*
 void DlgSettings::Update(void *pData)
 {
 	unsigned uWidth		  = m_ws.GetWidth();
@@ -66,7 +72,8 @@ void DlgSettings::Update(void *pData)
 	UpdateUnsigned(pData,EDF_WATOR_SHARKBREED,uSharkBreed);
 	UpdateUnsigned(pData,EDF_WATOR_SHARKSTARVE,uSharkStarve);
 
-	if(IsUpdateFromDlg(pData))
+	if(IsUpdateFromDlg(p
+	Data))
 	{
 		if(	   uWidth!=m_ws.GetWidth() 
 			|| uHeight!=m_ws.GetHeight() 
@@ -81,4 +88,4 @@ void DlgSettings::Update(void *pData)
 			m_ws.SetConfig(uFishBreed,uSharkBreed,uSharkStarve);
 	}
 } // end - DlgSettings::Update
-
+*/

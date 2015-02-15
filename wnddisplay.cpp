@@ -1,23 +1,23 @@
-
+/********************************************************************************************************
+$Date$
+$Revision$
+$Author$
+$HeadURL$
+********************************************************************************************************/
 
 #include "stdafx.h"
 #include "wnddisplay.h"
 #include "watorsim.h"
 
 #ifdef _DEBUG
-	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+	#define new DEBUG_NEW
 #endif
 
-const tk::string WndDisplay::CLASSNAME = "Wator:WndClass:WndDisplay";
+const std::wstring WndDisplay::CLASSNAME = L"Wator:WndClass:WndDisplay";
 
 
-TKW32_BEGIN_MESSAGETABLE(WndDisplay)
-	TKW32_WM_PAINT(OnPaint)
-	TKW32_WM_DESTROY(OnDestroy)
-TKW32_END_MESSAGETABLE(tkw32::Wnd)
 
-
-WndDisplay::WndDisplay() : tkw32::Wnd(),
+WndDisplay::WndDisplay() : tbase2::windows::gui::Wnd(),
 						   m_pcData(NULL),
 						   m_sizData(0),
 						   m_uDataWidth(0),
@@ -41,12 +41,12 @@ bool WndDisplay::RegisterClass(HINSTANCE hinst)
 
 	wc.cbClsExtra	 = 0;
 	wc.cbWndExtra	 = 0;
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW+1);
 	wc.hCursor		 = LoadCursor(NULL,IDC_ARROW);
 	wc.hIcon		 = NULL;
 	wc.hInstance	 = hinst;
 	wc.lpfnWndProc	 = NULL;
-	wc.lpszClassName = CLASSNAME;
+	wc.lpszClassName = CLASSNAME.c_str();
 	wc.lpszMenuName	 = NULL;
 	wc.style		 = CS_HREDRAW | CS_VREDRAW;
 
@@ -61,173 +61,103 @@ bool WndDisplay::SetData(const char		*pcData,
 	bool flReturn = false;
 
 	if(pcData==NULL)
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,-1,"No buffer specified!");
-	else if(uWidth==0 || uHeight==0)
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,-1,"Invalid buffer size specified!");
-	else
+		throw tbase2::InvalidArgumentError(__TFILE__,__LINE__,__TFUNCTION__,_T("pcData"));
+	if(uWidth==0 || uHeight==0)
+		throw tbase2::InvalidArgumentError(__TFILE__,__LINE__,__TFUNCTION__,_T("uWidth/uHeight"));
+
+	const size_t sizRequired = uWidth * uHeight;
+
+	if(m_sizData<=sizRequired)
 	{
-		const size_t sizRequired = uWidth * uHeight;
-
-		if(m_sizData<=sizRequired)
-		{
-			delete[] m_pcData; m_pcData=new char[sizRequired];
-			m_sizData= sizRequired;
-		}
-
-		m_uDataWidth = uWidth;
-		m_uDataHeight = uHeight;
-
-		memcpy(m_pcData,pcData,sizRequired);
-		flReturn = true;
+		delete[] m_pcData; m_pcData=new char[sizRequired];
+		if(m_pcData==NULL)
+			throw tbase2::AllocationError(__TFILE__,__LINE__,_T("new char[sizRequired]"),sizRequired*sizeof(char));
+		m_sizData= sizRequired;
 	}
+
+	m_uDataWidth = uWidth;
+	m_uDataHeight = uHeight;
+
+	memcpy(m_pcData,pcData,sizRequired);
+	flReturn = true;
 
 	return flReturn;
 } // end - WndDisplay::SetData
 
 
-void WndDisplay::OnPaint(HDC		 hdc,
-						 PAINTSTRUCT &ps)
+bool WndDisplay::OnPaint()
 {
-	if(hdc==NULL)
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"BeginPaint failed");
-	else if(m_pcData)
+	if(m_pcData==NULL)
+		return true;
+
+	PAINTSTRUCT ps;
+	HDC hdc = BeginPaint(*this,&ps);
+
+	try
 	{
-		const size_t   sizData = m_uDataWidth * m_uDataHeight;
-		tkw32::Brush   brWater;
-		tkw32::Brush   brFish;
-		tkw32::Brush   brShark;
-		tkw32::Brush   brDiagram;
-		tkw32::Pen     pnWater;
-		tkw32::Pen     pnFish;
-		tkw32::Pen     pnShark;
-		tkw32::Pen	   pnWhite;
-		const COLORREF crWhite   = GetSysColor(COLOR_WINDOW);
+		tbase2::windows::gdi::DeviceContext dc(hdc);
+		const size_t				sizData = m_uDataWidth * m_uDataHeight;
+		const COLORREF				crWhite = GetSysColor(COLOR_WINDOW);
+		tbase2::windows::gdi::Brush brWater(m_crWater);
+		tbase2::windows::gdi::Brush brFish(m_crFish);
+		tbase2::windows::gdi::Brush brShark(m_crShark);
+//		tbase2::windows::gdi::Brush brDiagram(m_
+		tbase2::windows::gdi::Pen   pnWater(PS_SOLID,1,m_crWater);
+		tbase2::windows::gdi::Pen   pnFish(PS_SOLID,1,m_crFish);
+		tbase2::windows::gdi::Pen   pnShark(PS_SOLID,1,m_crShark);
+		tbase2::windows::gdi::Pen	pnWhite(PS_SOLID,1,crWhite);
+		tbase2::windows::gdi::Rect	rcClient;
+		unsigned					x		= 0;
+		unsigned					y	    = 0;
 
 
-		if(!brWater.CreateSolidBrush(m_crWater))
-			tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create brush");
-		else if(!brFish.CreateSolidBrush(m_crFish))
-			tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create brush");
-		else if(!brShark.CreateSolidBrush(m_crShark))
-			tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create brush");
-		else if(!pnWater.CreatePen(PS_SOLID,1,m_crWater))
-			tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create pen");
-		else if(!pnFish.CreatePen(PS_SOLID,1,m_crFish))
-			tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create pen");
-		else if(!pnShark.CreatePen(PS_SOLID,1,m_crShark))
-			tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create pen");
-		else if(!pnWhite.CreatePen(PS_SOLID,1,crWhite))
-			tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create pen");
-		else
+		GetClientRect(rcClient);
+		const unsigned uUnitW = rcClient.width() / m_uDataWidth;
+		const unsigned uUnitH = rcClient.height() / m_uDataHeight;
+
+		dc.SetPen(pnWhite);
+		for(unsigned u=0; u<sizData; u++)
 		{
-			RECT		   rcClient;
-			unsigned	   uWidth    = 0;
-			unsigned	   uHeight   = 0;
-			unsigned	   uUnitW    = 0;
-			unsigned	   uUnitH    = 0;
-			unsigned	   uFrame    = 0;
-			unsigned	   u	     = 0;
-			unsigned	   x		 = 0;
-			unsigned	   y	     = 0;
-			unsigned	   uShark		= 0;
-			unsigned	   uFish		= 0;
-
-			GetClientRect(*this,&rcClient);
-
-			uWidth  = rcClient.right - rcClient.left;
-			uHeight = rcClient.bottom - rcClient.top;
-
-			uUnitW = uWidth / m_uDataWidth;
-			uUnitH = uHeight / m_uDataHeight;
-
-
-			SelectPen(hdc,pnWhite);
-			for(u=0; u<sizData; u++)
+			if(m_pcData[u]==WatorSim::CHAR_FISH)
 			{
-				if(m_pcData[u]==WatorSim::CHAR_FISH)
-				{
-					SelectBrush(hdc,brFish);
-					SelectPen(hdc,pnFish);
-				}
-				else if(m_pcData[u]==WatorSim::CHAR_SHARK)
-				{
-					SelectBrush(hdc,brShark);
-					SelectPen(hdc,pnShark);
-				}
-				else
-				{
-					SelectBrush(hdc,brWater);
-					SelectPen(hdc,pnWater);
-				}
-
-				if(uUnitW>4 && uUnitH>4)
-					SelectPen(hdc,pnWhite);
-
-				Rectangle(hdc,x,y,x+uUnitW,y+uUnitH);
-				x += uUnitW;
-				if((u+1)%m_uDataWidth==0)
-				{
-					x = 0;
-					y += uUnitH;
-				}
+				dc.SetBrush(brFish);
+				dc.SetPen(pnFish);
 			}
-/*
-			uShark = m_wator.GetSharkCount() * (uFrameBottom-10) / uMaxUnits;
-			uFish  = m_wator.GetFishCount() * (uFrameBottom-10) / uMaxUnits;
-
-			SelectBrush(hdc,brDiagram);
-			SelectPen(hdc,pnDiagram);
-			y = rcClient.bottom - 5;
-			Rectangle(hdc,0,y,uDiaWidth,rcClient.bottom-95);
-			
-
-			SelectPen(hdc,pnFish);
-			for(u=0; u<m_uOfs; u++)
+			else if(m_pcData[u]==WatorSim::CHAR_SHARK)
 			{
-				uFish = m_puFish[u] * (uFrameBottom-10) / uMaxUnits;
-
-				if(u==0)
-					MoveToEx(hdc,u,y-2,NULL);
-				else
-					LineTo(hdc,u,y-uFish-2);
+				dc.SetBrush(brShark);
+				dc.SetPen(pnShark);
 			}
-			SelectPen(hdc,pnShark);
-			for(u=0; u<m_uOfs; u++)
+			else
 			{
-				uFish = m_puShark[u] * (uFrameBottom-10) / uMaxUnits;
-
-				if(u==0)
-					MoveToEx(hdc,u,y-2,NULL);
-				else
-					LineTo(hdc,u,y-uFish-2);
+				dc.SetBrush(brWater);
+				dc.SetPen(pnWater);
 			}
 
-			nomfc::string strFish  = "Fishes:";
-			nomfc::string strShark = "Sharks:";
-			nomfc::string strLoops = "Iterations:";
+			if(uUnitW>4 && uUnitH>4)
+				dc.SetPen(pnWhite);
 
-			SelectFont(hdc,fnt);
-			SetTextAlign(hdc,TA_LEFT|TA_TOP);
-			SetTextColor(hdc,crDiagram);
-			y = rcClient.bottom-95;
-			TextOut(hdc,uDiaWidth+5,y,strFish,(int)strFish.length());
-			TextOut(hdc,uDiaWidth+5,y+20,strShark,(int)strShark.length());
-			TextOut(hdc,uDiaWidth+5,y+40,strLoops,(int)strLoops.length());
-
-			strFish  = nomfc::string::mkString("%u",m_wator.GetFishCount());
-			strShark = nomfc::string::mkString("%u",m_wator.GetSharkCount()); 
-			strLoops = nomfc::string::mkString("%u",m_wator.GetIterations());
-			SetTextAlign(hdc,TA_RIGHT|TA_TOP);
-			TextOut(hdc,uDiaWidth+200,y,strFish,(int)strFish.length());
-			TextOut(hdc,uDiaWidth+200,y+20,strShark,(int)strShark.length());
-			TextOut(hdc,uDiaWidth+200,y+40,strLoops,(int)strLoops.length());
-*/
+			Rectangle(dc,x,y,x+uUnitW,y+uUnitH);
+			x += uUnitW;
+			if((u+1)%m_uDataWidth==0)
+			{
+				x = 0;
+				y += uUnitH;
+			}
 		}
+		EndPaint(*this,&ps); hdc=NULL;
 	}
+	catch(...)
+	{
+		EndPaint(*this,&ps); hdc=NULL;
+	}
+
+	return true;
 } // end - WndDisplay::OnPaint
 
 
-void WndDisplay::OnDestroy()
+bool WndDisplay::OnDestroy()
 {
 	delete[] m_pcData; m_pcData=NULL;
+	return true;
 } // end - WndDisplay::OnDestroy

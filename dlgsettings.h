@@ -1,24 +1,28 @@
+/********************************************************************************************************
+$Date$
+$Revision$
+$Author$
+$HeadURL$
+********************************************************************************************************/
 
-#ifndef _WATOR_DLGSETTINGS_INCLUDED_
-	#define _WATOR_DLGSETTINGS_INCLUDED_
+#pragma once
 
-	#include "watorsim.h"
+#include "watorsim.h"
 
-	class DlgSettings : public tkw32::Dlg
-	{
-		TKW32_DECLARE_MESSAGETABLE()
+class DlgSettings : public tbase2::windows::gui::Dlg
+{
+	public:
+					DlgSettings(WatorSim   &ws, 
+								const bool flRestart=false
+					);
 
-		public:
-						DlgSettings(WatorSim &ws, const bool flRestart=false);
-				virtual ~DlgSettings();
+			virtual ~DlgSettings();
 
-		protected:
-					virtual void OnInitDialog();
-					virtual void Update		 (void *pData);
+	protected:
+				virtual void OnInitDialog();
 
-		private:
-				WatorSim   &m_ws;
-				const bool m_flRestart;
-	};
+	private:
+			WatorSim   &m_ws;
+			const bool m_flRestart;
+};
 
-#endif

@@ -1,16 +1,15 @@
+/********************************************************************************************************
+$Date$
+$Revision$
+$Author$
+$HeadURL$
+********************************************************************************************************/
+
+#pragma once
+
+#include <tbase2.h>
+
+#include "resource.h"
 
 
-#ifndef _WATOR_STDAFX_INCLUDED_
-	#define _WATOR_STDAFX_INCLUDED_
-	#define _CRTDBG_MAP_ALLOC
-
-	#include <stdlib.h>
-	#include <crtdbg.h>
-	#include <math.h>
-	#include <time.h>
-	#include <stdio.h>
-	#include <conio.h>	
-
-	#include <tklib_required.h>	
-
-#endif
+static const std::wstring gl_strDlgFont = L"MS Shell Dlg";

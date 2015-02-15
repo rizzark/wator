@@ -1,11 +1,21 @@
+/********************************************************************************************************
+$Date$
+$Revision$
+$Author$
+$HeadURL$
+********************************************************************************************************/
+
+#pragma once
 
 #include "stdafx.h"
 #include "wndwator.h"
 #include "dlgsettings.h"
 
 #ifdef _DEBUG
-	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+	#define new DEBUG_NEW
 #endif
+
+extern tbase2::windows::Module gl_Module;
 
 
 static const UINT_PTR TIMER_STEP = 111;
@@ -18,27 +28,11 @@ static const UINT_PTR PBT_SINGLESTEP = 1004;
 static const UINT_PTR PBT_RESTART	 = 1005;
 
 
-const tk::string WndWator::CLASSNAME = "Wator:WndClass:WndWator";
+const std::wstring WndWator::CLASSNAME = L"Wator:WndClass:WndWator";
 
 
-TKW32_BEGIN_MESSAGETABLE(WndWator)
-	TKW32_WM_CREATE(OnCreate)
-	TKW32_WM_TIMER(OnTimer)
-	TKW32_WM_CLOSE(OnClose)
-	TKW32_WM_DESTROY(OnDestroy)
-
-	TKW32_WM_COMMAND(PBT_STARTSTOP,OnStartStop)
-	TKW32_WM_COMMAND(PBT_SETTINGS,OnSettings)
-	TKW32_WM_COMMAND(PBT_SINGLESTEP,OnSingleStep)
-	TKW32_WM_COMMAND(PBT_RESTART,OnRestart)
-TKW32_END_MESSAGETABLE(tkw32::Wnd)
-
-
-WndWator::WndWator(WatorSim &wator) : tkw32::Wnd(),
+WndWator::WndWator(WatorSim &wator) : tbase2::windows::gui::Wnd(),
 									  m_wator(wator),
-									  m_hwndSettings(NULL),
-									  m_hwndStartStop(NULL),
-									  m_hwndSingleStep(NULL),
 									  m_ltDlg(0,2),
 									  m_ltSim(0,2),
 									  m_ltButtons(0,2),
@@ -49,6 +43,32 @@ WndWator::WndWator(WatorSim &wator) : tkw32::Wnd(),
 									  m_crShark(RGB(255,0,0)),
 									  m_flRunning(false)
 {
+	try
+	{
+		static const DWORD dwStyle  = WS_CAPTION | 
+									  WS_SYSMENU | 
+									  WS_MINIMIZEBOX | 
+									  WS_MAXIMIZEBOX | 
+									  WS_VISIBLE | 
+									  WS_THICKFRAME;
+
+		if(!RegisterClass(gl_Module))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("WndWator::RegisterClass"),GetLastError());
+
+		const int x		 = CW_USEDEFAULT;
+		const int y		 = CW_USEDEFAULT;
+		const int width  = CW_USEDEFAULT;
+		const int height = CW_USEDEFAULT;
+
+		if(!CreateEx(WndWator::CLASSNAME.c_str(),gl_Module.String(IDS_TITLE).c_str(),dwStyle,WS_EX_CONTROLPARENT,x,y,width,height,NULL,NULL,gl_Module,NULL))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("wnd.CreateEx"),GetLastError());
+	}
+	catch(std::exception &error)
+	{
+	}
+	catch(...)
+	{
+	}
 } // end - WndWator::WndWator
 
 
@@ -62,62 +82,83 @@ bool WndWator::RegisterClass(HINSTANCE hinst)
 {
 	bool flReturn = false;
 
-	if(!WndDisplay::RegisterClass(hinst))
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot register window class!");
-	else if(!WndStatistic::RegisterClass(hinst))
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot register window class!");
-	else
+	try
 	{
+		if(!WndDisplay::RegisterClass(hinst))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("WndDisplay::RegisterClass"),GetLastError());
+		if(!WndStatistic::RegisterClass(hinst))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("WndStatistic::RegisterClass"),GetLastError());
+
 		WNDCLASS wc;
 
 		wc.cbClsExtra	 = 0;
 		wc.cbWndExtra	 = 0;
-		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+		wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BTNFACE+1);
 		wc.hCursor		 = LoadCursor(NULL,IDC_ARROW);
 		wc.hIcon		 = NULL;
 		wc.hInstance	 = hinst;
 		wc.lpfnWndProc	 = NULL;
-		wc.lpszClassName = CLASSNAME;
+		wc.lpszClassName = CLASSNAME.c_str();
 		wc.lpszMenuName	 = NULL;
 		wc.style		 = CS_HREDRAW | CS_VREDRAW;
 
 		flReturn = Wnd::RegisterClass(wc);
+	}
+	catch(...)
+	{
+		flReturn = false;
 	}
 
 	return flReturn;
 } // end - WndWator::RegisterClass
 
 
-LRESULT WndWator::OnCreate(CREATESTRUCT *pcs)
+bool WndWator::PreTranslateMsg(MSG &msg)
 {
-	LRESULT lres = -1;
-	HDC		hdc	 = GetDC(*this);
+	return IsDialogMessage(*this,&msg) ? true : false;
+} // end - WndWator::PreTranslateMsg
 
-	if(!m_fntDlg.CreatePointFont(hdc,8,"MS Shell Dlg"))
-		tklib::TraceError(*this,__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create font!");
-	else if(!IsWindow(m_hwndSettings=CreateWindow("BUTTON","Settings",WS_CHILD|WS_VISIBLE|WS_TABSTOP,0,0,80,20,*this,(HMENU)PBT_SETTINGS,pcs->hInstance,NULL)))
-		tklib::TraceError(*this,__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create window!");
-	else if(!IsWindow(m_hwndStartStop=CreateWindow("BUTTON","Stop",WS_CHILD|WS_VISIBLE|WS_TABSTOP,0,0,80,20,*this,(HMENU)PBT_STARTSTOP,pcs->hInstance,NULL)))
-		tklib::TraceError(*this,__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create window!");
-	else if(!IsWindow(m_hwndSingleStep=CreateWindow("BUTTON","Einzelschritt",WS_CHILD|WS_VISIBLE|WS_TABSTOP,0,0,80,20,*this,(HMENU)PBT_SINGLESTEP,pcs->hInstance,NULL)))
-		tklib::TraceError(*this,__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create window!");
-	else if(!IsWindow(m_hwndRestart=CreateWindow("BUTTON","Neustart",WS_CHILD|WS_VISIBLE|WS_TABSTOP,0,0,80,20,*this,(HMENU)PBT_RESTART,pcs->hInstance,NULL)))
-		tklib::TraceError(*this,__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create window!");
-	else if(!m_wndDisplay.Create(WndDisplay::CLASSNAME,"",WS_CHILD|WS_VISIBLE,0,0,100,100,*this,(HMENU)WND_DISPLAY,pcs->hInstance,NULL))
-		tklib::TraceError(*this,__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create display window!");
-	else if(!m_wndStatistic.Create(WndStatistic::CLASSNAME,"",WS_CHILD|WS_VISIBLE,0,0,160,100,*this,(HMENU)WND_STATISTIC,pcs->hInstance,NULL))
-		tklib::TraceError(*this,__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create statistic window!");
-	else
+
+bool WndWator::OnCreate(CREATESTRUCT *pcs,
+						LRESULT		 &lres)
+{
+	try
 	{
-		SendMessage(m_hwndSettings,WM_SETFONT,(WPARAM)(HFONT)m_fntDlg,MAKELPARAM(TRUE,FALSE));
-		SendMessage(m_hwndStartStop,WM_SETFONT,(WPARAM)(HFONT)m_fntDlg,MAKELPARAM(TRUE,FALSE));
-		SendMessage(m_hwndSingleStep,WM_SETFONT,(WPARAM)(HFONT)m_fntDlg,MAKELPARAM(TRUE,FALSE));
-		SendMessage(m_hwndRestart,WM_SETFONT,(WPARAM)(HFONT)m_fntDlg,MAKELPARAM(TRUE,FALSE));
+		const DWORD							dwButtonStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP;
+		const int							iButtonW	  = 80;
+		const int							iButtonH	  = 20;
+		tbase2::windows::gdi::DeviceContext dc(*this);
 
-		m_ltButtons.AddItem(-1,m_hwndSettings,false,false);
-		m_ltButtons.AddItem(-1,m_hwndStartStop,false,false);
-		m_ltButtons.AddItem(-1,m_hwndSingleStep,false,false);
-		m_ltButtons.AddItem(-1,m_hwndRestart,false,false);
+		if(!m_fntDlg.CreatePointFont(dc,8,gl_strDlgFont.c_str()))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("m_fntDlg.CreatePointFont"),GetLastError());
+		
+		if(!m_pbtSettings.Create(*this,dwButtonStyle,0,PBT_SETTINGS,gl_Module.String(IDS_SETTINGS).c_str(),0,0,iButtonW,iButtonH))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("m_pbtSettings.Create"),GetLastError());
+
+		if(!m_pbtStartStop.Create(*this,dwButtonStyle,0,PBT_STARTSTOP,gl_Module.String(IDS_STOP).c_str(),0,0,iButtonW,iButtonH))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("m_pbtStartStop.Create"),GetLastError());
+
+		if(!m_pbtSingleStep.Create(*this,dwButtonStyle,0,PBT_SINGLESTEP,gl_Module.String(IDS_SINGLESTEP).c_str(),0,0,iButtonW,iButtonH))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("m_pbtSingleStep.Create"),GetLastError());
+
+		if(!m_pbtRestart.Create(*this,dwButtonStyle,0,PBT_RESTART,gl_Module.String(IDS_RESTART).c_str(),0,0,iButtonW,iButtonH))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("m_pbtRestart.Create"),GetLastError());
+
+		if(!m_wndDisplay.CreateEx(WndDisplay::CLASSNAME.c_str(),L"",WS_CHILD|WS_VISIBLE,0,0,0,100,100,*this,reinterpret_cast<HMENU>(WND_DISPLAY),pcs->hInstance,NULL))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("m_wndDisplay.CreateEx"),GetLastError());
+
+		if(!m_wndStatistic.CreateEx(WndStatistic::CLASSNAME.c_str(),L"",WS_CHILD|WS_VISIBLE,0,0,0,160,100,*this,reinterpret_cast<HMENU>(WND_STATISTIC),pcs->hInstance,NULL))
+			throw tbase2::WinAPIError(__TFILE__,__LINE__,_T("m_wndStatistic.CreateEx"),GetLastError());
+
+		m_pbtSettings.SetFont(m_fntDlg,true);
+		m_pbtStartStop.SetFont(m_fntDlg,true);
+		m_pbtSingleStep.SetFont(m_fntDlg,true);
+		m_pbtRestart.SetFont(m_fntDlg,true);
+
+		m_ltButtons.AddItem(-1,m_pbtSettings,false,false);
+		m_ltButtons.AddItem(-1,m_pbtStartStop,false,false);
+		m_ltButtons.AddItem(-1,m_pbtSingleStep,false,false);
+		m_ltButtons.AddItem(-1,m_pbtRestart,false,false);
 		m_ltButtons.AddItem(-1,0,0,false,true);
 
 		m_ltSim.AddItem(-1,m_wndDisplay,true,true);
@@ -136,49 +177,74 @@ LRESULT WndWator::OnCreate(CREATESTRUCT *pcs)
 		m_wndStatistic.SetColorShark(m_crShark);
 
 		m_flStartup = true;
-		PostMessage(*this,WM_COMMAND,PBT_RESTART,0);
+		PostMessage(WM_COMMAND,PBT_RESTART,0);
 		lres = 0;
 	}
-
-	if(hdc)
+	catch(...)
 	{
-		ReleaseDC(*this,hdc);
-		hdc = NULL;
+		lres = -1;
 	}
 
-
-	lres = 0;
-
-	return lres;
+	return true;
 } // end - WndWator::OnCreate
 
 
-void WndWator::OnTimer(UINT_PTR  uTimer,
+bool WndWator::OnTimer(UINT_PTR  uTimer,
 					   TIMERPROC proc)
 {
+	bool flReturn = true;
+
 	if(uTimer==TIMER_STEP)
 		OnSingleStep();
+	else
+		flReturn = false;
+
+	return flReturn;
 } // end - WndWator::OnTimer
 
 
-void WndWator::OnClose()
+bool WndWator::OnCommand(WORD wIDFrom,
+						 WORD wType,
+						 HWND hwndFrom)
+{
+	bool flReturn = true;
+
+	if(wIDFrom==PBT_SETTINGS)
+		OnSettings();
+	else if(wIDFrom==PBT_STARTSTOP)
+		OnStartStop();
+	else if(wIDFrom==PBT_SINGLESTEP)
+		OnSingleStep();
+	else if(wIDFrom==PBT_RESTART)
+		OnRestart();
+	else
+		flReturn = false;
+
+	return flReturn;
+} // end - Wator::OnCommand
+
+
+bool WndWator::OnClose()
 {
 	PostQuitMessage(0);
+	return true;
 } // end - WndWator::OnClose
 
 
-void WndWator::OnDestroy()
+bool WndWator::OnDestroy()
 {
-	tkw32::DESTROYWINDOW(m_hwndSettings);
-	tkw32::DESTROYWINDOW(m_hwndStartStop);
-	tkw32::DESTROYWINDOW(m_hwndSingleStep);
-	tkw32::DESTROYWINDOW(m_hwndRestart);
-	tkw32::DESTROYWINDOW(m_wndDisplay.m_hwnd);
-	tkw32::DESTROYWINDOW(m_wndStatistic.m_hwnd);
-	
+	m_pbtSettings.DestroyWindow();
+	m_pbtStartStop.DestroyWindow();
+	m_pbtSingleStep.DestroyWindow();
+	m_pbtRestart.DestroyWindow();
+	m_wndDisplay.DestroyWindow();
+	m_wndStatistic.DestroyWindow();
+
 	delete[] m_pcData; m_pcData=NULL;
 	m_sizData = 0;
-	KillTimer(*this,TIMER_STEP);
+	KillTimer(TIMER_STEP);
+
+	return true;
 } // end - WndWator::OnDestroy
 
 
@@ -186,18 +252,18 @@ void WndWator::OnStartStop()
 {
 	if(m_flRunning)
 	{
-		KillTimer(*this,TIMER_STEP);
-		SetDlgItemText(*this,PBT_STARTSTOP,"Start");
+		KillTimer(TIMER_STEP);
+		m_pbtStartStop.SetText(gl_Module.String(IDS_START).c_str());
 		m_flRunning = false;
 	}
 	else
 	{
-		SetTimer(*this,TIMER_STEP,90,NULL);
-		SetDlgItemText(*this,PBT_STARTSTOP,"Stop");
+		SetTimer(TIMER_STEP,90);
+		m_pbtStartStop.SetText(gl_Module.String(IDS_STOP).c_str());
 		m_flRunning = true;
 	}
 
-	EnableDlgItem(PBT_SINGLESTEP,!m_flRunning);
+	m_pbtSingleStep.EnableWindow(!m_flRunning);
 } // end - WndWator::OnStartStop
 
 
@@ -245,18 +311,19 @@ void WndWator::OnRestart()
 	if(m_flRunning)
 		OnStartStop();
 
-	if(dlg.Modal(*this)==IDOK)
+	//if(dlg.Modal(*this)==IDOK)
 	{
 		m_wator.Reset();
 		m_wndStatistic.ClearData();
 		if(!m_flRunning)
 			OnStartStop();
 	}
+/*
 	else if(m_flStartup)
-		PostMessage(*this,WM_CLOSE,0,0);	
+		PostMessage(WM_CLOSE,0,0);	
 	else
 		OnStartStop();
-
+*/
 	m_flStartup = false;
 } // end - WndWator::OnRestart
 

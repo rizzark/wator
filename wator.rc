@@ -16,10 +16,8 @@
 // Deutsch (Deutschland) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
-#ifdef _WIN32
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -53,8 +51,7 @@ END
 //
 
 DLG_WATOR DIALOGEX 0, 0, 268, 142
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
-    WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Simulationsparameter"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -62,26 +59,16 @@ BEGIN
     EDITTEXT        EDF_WATOR_SIZEX,49,7,40,14,ES_AUTOHSCROLL | ES_NUMBER
     LTEXT           "x",IDC_STATIC,99,7,8,14,SS_CENTERIMAGE
     EDITTEXT        EDF_WATOR_SIZEY,113,7,40,14,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "Mit wievielen Fischen starten?",IDC_STATIC,7,24,96,13,
-                    SS_CENTERIMAGE
-    EDITTEXT        EDF_WATOR_FISHSTART,221,24,40,14,ES_AUTOHSCROLL | 
-                    ES_NUMBER
-    LTEXT           "Mit wievielen Haien starten?",IDC_STATIC,7,41,96,13,
-                    SS_CENTERIMAGE
-    EDITTEXT        EDF_WATOR_SHARKSTART,221,41,40,14,ES_AUTOHSCROLL | 
-                    ES_NUMBER
-    LTEXT           "Fische vermehren sich nach wieviel Zyklen?",IDC_STATIC,
-                    7,62,140,14,SS_CENTERIMAGE
-    EDITTEXT        EDF_WATOR_FISHBREED,221,62,40,14,ES_AUTOHSCROLL | 
-                    ES_NUMBER
-    LTEXT           "Haie vermehren sich nach wieviel Zyklen?",IDC_STATIC,7,
-                    78,140,14,SS_CENTERIMAGE
-    EDITTEXT        EDF_WATOR_SHARKBREED,221,78,40,14,ES_AUTOHSCROLL | 
-                    ES_NUMBER
-    LTEXT           "Haie sterben nach wievielen Zyklen ohne Beute?",
-                    IDC_STATIC,7,94,156,14,SS_CENTERIMAGE
-    EDITTEXT        EDF_WATOR_SHARKSTARVE,221,94,40,14,ES_AUTOHSCROLL | 
-                    ES_NUMBER
+    LTEXT           "Mit wievielen Fischen starten?",IDC_STATIC,7,24,96,13,SS_CENTERIMAGE
+    EDITTEXT        EDF_WATOR_FISHSTART,221,24,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Mit wievielen Haien starten?",IDC_STATIC,7,41,96,13,SS_CENTERIMAGE
+    EDITTEXT        EDF_WATOR_SHARKSTART,221,41,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Fische vermehren sich nach wieviel Zyklen?",IDC_STATIC,7,62,140,14,SS_CENTERIMAGE
+    EDITTEXT        EDF_WATOR_FISHBREED,221,62,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Haie vermehren sich nach wieviel Zyklen?",IDC_STATIC,7,78,140,14,SS_CENTERIMAGE
+    EDITTEXT        EDF_WATOR_SHARKBREED,221,78,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Haie sterben nach wievielen Zyklen ohne Beute?",IDC_STATIC,7,94,156,14,SS_CENTERIMAGE
+    EDITTEXT        EDF_WATOR_SHARKSTARVE,221,94,40,14,ES_AUTOHSCROLL | ES_NUMBER
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,113,254,1
     PUSHBUTTON      "Standard",PBT_WATOR_DEFAULT,7,121,50,14
     PUSHBUTTON      "Zurück",PBT_WATOR_RESTORE,62,121,50,14
@@ -96,7 +83,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     DLG_WATOR, DIALOG
     BEGIN
@@ -113,6 +100,25 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_TITLE               "Wator"
+    IDS_SETTINGS            "Einstellungen"
+    IDS_STOP                "Stop"
+    IDS_SINGLESTEP          "Einzelschritt"
+    IDS_RESTART             "Neustart"
+    IDS_START               "Start"
+    IDS_CYCLES              "Zyklen:"
+    IDS_FISHES              "Fische:"
+    IDS_SHARKS              "Haie:"
+END
 
 #endif    // Deutsch (Deutschland) resources
 /////////////////////////////////////////////////////////////////////////////

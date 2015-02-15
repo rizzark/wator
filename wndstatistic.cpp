@@ -1,30 +1,29 @@
-
+/********************************************************************************************************
+$Date$
+$Revision$
+$Author$
+$HeadURL$
+********************************************************************************************************/
 
 #include "stdafx.h"
 #include "wndstatistic.h"
 
 #ifdef _DEBUG
-	#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)
+	#define new DEBUG_NEW
 #endif
 
-const tk::string WndStatistic::CLASSNAME  = "Wator:WndClass:WndStatistic";
-const unsigned	 WndStatistic::SAVECYCLES = 4000;
+extern tbase2::windows::Module gl_Module;
 
 
-TKW32_BEGIN_MESSAGETABLE(WndStatistic)
-	TKW32_WM_CREATE(OnCreate)
-	TKW32_WM_PAINT(OnPaint)
-	TKW32_WM_DESTROY(OnDestroy)
-TKW32_END_MESSAGETABLE(tkw32::Wnd)
+const std::wstring WndStatistic::CLASSNAME  = L"Wator:WndClass:WndStatistic";
+const unsigned	   WndStatistic::SAVECYCLES = 4000;
 
 
-WndStatistic::WndStatistic() : tkw32::Wnd(),
+WndStatistic::WndStatistic() : tbase2::windows::gui::Wnd(),
 							   m_crFish(RGB(0,0,0)),
 							   m_crShark(RGB(0,0,0)),
 							   m_uMax(0)
 {
-	m_arrSharkCount.resize(SAVECYCLES,0);
-	m_arrFishCount.resize(SAVECYCLES,0);
 } // end - WndStatistic::WndStatistic
 
 
@@ -39,12 +38,12 @@ bool WndStatistic::RegisterClass(HINSTANCE hinst)
 
 	wc.cbClsExtra	 = 0;
 	wc.cbWndExtra	 = 0;
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
+	wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW+1);
 	wc.hCursor		 = LoadCursor(NULL,IDC_ARROW);
 	wc.hIcon		 = NULL;
 	wc.hInstance	 = hinst;
 	wc.lpfnWndProc	 = NULL;
-	wc.lpszClassName = CLASSNAME;
+	wc.lpszClassName = CLASSNAME.c_str();
 	wc.lpszMenuName	 = NULL;
 	wc.style		 = CS_HREDRAW | CS_VREDRAW;
 
@@ -56,110 +55,92 @@ void WndStatistic::AddData(const unsigned uFishCount,
 						   const unsigned uSharkCount,
 						   const unsigned uMax)
 {
-	TKASSERT(m_arrFishCount.getsize()==m_arrSharkCount.getsize(),"Array size differs");
-
-	if(m_arrFishCount.getsize()==SAVECYCLES)
+	if(m_vFishCount.size()==SAVECYCLES)
 	{
-		m_arrFishCount.shl();
-		m_arrSharkCount.shl();
+//		m_arrFishCount.shl();
+//		m_arrSharkCount.shl();
 	}
 
 	m_uMax = uMax;
-	m_arrFishCount.add(uFishCount);
-	m_arrSharkCount.add(uSharkCount);
+	m_vFishCount.push_back(uFishCount);
+	m_vSharkCount.push_back(uSharkCount);
 	m_uCycles++;
+
+	TBASE2_ASSERT(m_vSharkCount.size()==m_vFishCount.size());
 } // end - WndStatistic::AddData
 
 
 void WndStatistic::ClearData()
 {
-	m_arrFishCount.clear(false);
-	m_arrSharkCount.clear(false);
+	m_vFishCount.clear();
+	m_vSharkCount.clear();
 	m_uCycles = 0;
 } // end - WndStatistic::ClearData
 
 
-LRESULT WndStatistic::OnCreate(CREATESTRUCT *pcs)
+bool WndStatistic::OnCreate(CREATESTRUCT *pcs,
+							LRESULT		 &lres)
 {
-	m_arrSharkCount.clear(false);
-	m_arrFishCount.clear(false);
+	ClearData();
 
-	m_arrSharkCount.add(0);
-	m_arrFishCount.add(0);
-	m_uCycles = 0;
+	m_vFishCount.push_back(0);
+	m_vSharkCount.push_back(0);
 
 	return 0;
 } // end - WndStatistic::OnCreate
 
 
-void WndStatistic::OnPaint(HDC		   hdc,
-						   PAINTSTRUCT &ps)
+bool WndStatistic::OnPaint()
 {
-	TKASSERT(m_arrFishCount.getsize()==m_arrSharkCount.getsize(),"Array size differs");
+	if(m_vSharkCount.size()==0)
+		return true;
 
-	tkw32::Font	   fnt;
-	tkw32::Pen	   pnFish;
-	tkw32::Pen	   pnShark;
-	tkw32::Pen	   pnDiagram;
-	const COLORREF crDiagram = GetSysColor(COLOR_BTNTEXT);
-	tkw32::Font	   fntDiagram;
+	PAINTSTRUCT ps;
+	HDC hdc = BeginPaint(*this,&ps);
 
-	if(m_arrSharkCount.getsize()==0)
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,-1,"No data available!");
-	else if(!fnt.CreatePointFont(hdc,12,"MS Shell Dlg"))
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create font!");
-	else if(!pnFish.CreatePen(PS_SOLID,1,m_crFish))
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create pen!");
-	else if(!pnShark.CreatePen(PS_SOLID,1,m_crShark))
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create pen!");
-	else if(!pnDiagram.CreatePen(PS_SOLID,1,crDiagram))
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create pen!");
-	else if(!fntDiagram.CreatePointFont(hdc,6,"MS Shell Dlg"))
-		tklib::TraceError(__FUNCTION__,__FILE__,__LINE__,GetLastError(),"Cannot create font!");
-	else
+	try
 	{
-		RECT		rcClient;
-		unsigned	uWidth    = 0;
-		unsigned	uHeight   = 0;
-		tk::string  strMsg	  = "";
-		tk::string  strCycles = tk::string::mkString("%u",m_uCycles);
-		tk::string  strSharks = tk::string::mkString("%u",m_arrSharkCount[(unsigned)m_arrSharkCount.getsize()-1]);
-		tk::string  strFish   = tk::string::mkString("%u",m_arrFishCount[(unsigned)m_arrFishCount.getsize()-1]);
+		tbase2::windows::gdi::DeviceContext dc(hdc);
+		const COLORREF					    crDiagram = GetSysColor(COLOR_BTNTEXT);
+		tbase2::windows::gdi::Font			fnt(dc,12,gl_strDlgFont.c_str());
+		tbase2::windows::gdi::Pen			pnFish(PS_SOLID,1,m_crFish);
+		tbase2::windows::gdi::Pen			pnShark(PS_SOLID,1,m_crShark);
+		tbase2::windows::gdi::Pen			pnDiagram(PS_SOLID,1,crDiagram);
+		tbase2::windows::gdi::Font			fntDiagram(dc,6,gl_strDlgFont.c_str());
+		tbase2::windows::gdi::Rect			rcClient;
 
-		GetClientRect(*this,&rcClient);
-		uWidth = rcClient.right - rcClient.left;
-		uHeight = rcClient.bottom - rcClient.top;
+		GetClientRect(&rcClient);
 
-		SelectFont(hdc,fnt);
-		SetTextColor(hdc,crDiagram);
+		dc.SetFont(fnt);
+		dc.SetTextColor(crDiagram);
 
-		SetTextAlign(hdc,TA_LEFT|TA_TOP);
-		strMsg = "Cycles:";
-		TextOut(hdc,5,5,strMsg,(int)strMsg.length());
-		strMsg = "Fishes:";
-		TextOut(hdc,5,30,strMsg,(int)strMsg.length());
-		strMsg = "Sharks:";
-		TextOut(hdc,5,55,strMsg,(int)strMsg.length());
+		dc.SetTextAlign(TA_LEFT|TA_TOP);
+		dc.TextOut(5, 5,gl_Module.String(IDS_CYCLES).c_str());
+		dc.TextOut(5,30,gl_Module.String(IDS_FISHES).c_str());
+		dc.TextOut(5,55,gl_Module.String(IDS_SHARKS).c_str());
+				
+		dc.SetTextAlign(TA_RIGHT|TA_TOP);
 
-		
-		SetTextAlign(hdc,TA_RIGHT|TA_TOP);
-		TextOut(hdc,150,5,strCycles,(int)strCycles.length());
-		TextOut(hdc,150,30,strFish,(int)strFish.length());
-		TextOut(hdc,150,55,strSharks,(int)strSharks.length());
+		TBASE2_ASSERT(m_vFishCount.size()>0 && m_vSharkCount.size()>0);
+		dc.TextOut(150, 5,std::to_wstring(m_uCycles));
+		dc.TextOut(150,30,std::to_wstring(m_vFishCount[m_vFishCount.size()-1]));
+		dc.TextOut(150,55,std::to_wstring(m_vSharkCount[m_vSharkCount.size()-1]));
 
+		const unsigned uWidth = rcClient.width();
+//		uHeight = rcClient.bottom - rcClient.top;
 
 		if(uWidth-160 > 100)
 		{
-			const unsigned uDiaMax	  = uHeight - 10;
-			tk::string	   strMax	  = tk::string::mkString("%u",m_uMax);
-			tk::string	   strHalf	  = tk::string::mkString("%u",m_uMax/2);
-			unsigned	   x		  = uWidth - 50;
-			unsigned	   y          = uHeight - 5;
-			int			   iOfs		  = (int)m_arrSharkCount.getsize()-1;
+			const unsigned uDiaMax	  = rcClient.height() - 10;
+			std::wstring   wstrMax	  = std::to_wstring(m_uMax);
+			std::wstring   wstrHalf	  = std::to_wstring(m_uMax/2);
+			unsigned	   x		  = rcClient.width() - 50;
+			unsigned	   y          = rcClient.height() - 5;
+			int			   iOfs		  = static_cast<int>(m_vSharkCount.size()-1);
 			int			   iFishLast  = -1;
 			int			   iSharkLast = -1;
 
-			SelectPen(hdc,pnDiagram);
+			dc.SetPen(pnDiagram);
 			MoveToEx(hdc,160,y+1,NULL);
 			LineTo(hdc,x+1,y+1);
 			LineTo(hdc,x+1,y-uDiaMax);
@@ -167,19 +148,19 @@ void WndStatistic::OnPaint(HDC		   hdc,
 			MoveToEx(hdc,x+1,y-uDiaMax/2,NULL);
 			LineTo(hdc,x+5,y-uDiaMax/2);
 
-			SelectFont(hdc,fntDiagram);
+			dc.SetFont(fntDiagram);
 			SetTextAlign(hdc,TA_LEFT|TA_TOP);
 			SetTextColor(hdc,crDiagram);
-			TextOut(hdc,x+6,y-uDiaMax,strMax,(int)strMax.length());
-			TextOut(hdc,x+6,y-uDiaMax/2,strHalf,(int)strHalf.length());
+			dc.TextOut(x+6,y-uDiaMax,wstrMax);
+			dc.TextOut(x+6,y-uDiaMax/2,wstrHalf);
 
 
 			for(; x>160 && iOfs>0; x--,iOfs--)
 			{
-				unsigned uShark = uDiaMax * m_arrSharkCount[iOfs] / m_uMax;
-				unsigned uFish  = uDiaMax * m_arrFishCount[iOfs] / m_uMax;
+				unsigned uShark = uDiaMax * m_vSharkCount[iOfs] / m_uMax;
+				unsigned uFish  = uDiaMax * m_vFishCount[iOfs] / m_uMax;
 
-				SelectPen(hdc,pnFish);
+				dc.SetPen(pnFish);
 				if(iFishLast==-1)
 				{
 					iFishLast = y-uFish;
@@ -192,7 +173,7 @@ void WndStatistic::OnPaint(HDC		   hdc,
 					LineTo(hdc,x,iFishLast);
 				}
 
-				SelectPen(hdc,pnShark);
+				dc.SetPen(pnShark);
 				if(iSharkLast==-1)
 				{
 					iSharkLast = y-uShark;
@@ -206,11 +187,15 @@ void WndStatistic::OnPaint(HDC		   hdc,
 				}
 			}
 		}
+		EndPaint(*this,&ps); hdc=NULL;
 	}
+	catch(...)
+	{
+		EndPaint(*this,&ps); hdc=NULL;
+	}
+
+	return true;
 } // end - WndStatistic::OnPaint
 
 
-void WndStatistic::OnDestroy()
-{
-} // end - WndStatistic::OnDestroy
 
