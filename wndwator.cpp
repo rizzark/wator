@@ -38,7 +38,7 @@ WndWator::WndWator(WatorSim &wator) : tbase2::windows::gui::Wnd(),
 									  m_ltButtons(0,2),
 									  m_pcData(NULL),
 									  m_sizData(0),
-									  m_crWater(RGB(255,255,255)),
+									  m_crWater(RGB(0,0,0)),
 									  m_crFish(RGB(0,255,0)),
 									  m_crShark(RGB(255,0,0)),
 									  m_flRunning(false)

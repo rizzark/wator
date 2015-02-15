@@ -133,21 +133,27 @@ void WndDisplay::Render(tbase2::windows::gdi::DeviceContext &dc,
 	try
 	{
 		const size_t				sizData = m_uDataWidth * m_uDataHeight;
-		const COLORREF				crWhite = GetSysColor(COLOR_WINDOW);
+		//const COLORREF				crWhite = RGB(0,0,0);//GetSysColor(COLOR_WINDOW);
 		tbase2::windows::gdi::Brush brWater(m_crWater);
 		tbase2::windows::gdi::Brush brFish(m_crFish);
 		tbase2::windows::gdi::Brush brShark(m_crShark);
 		tbase2::windows::gdi::Pen   pnWater(PS_SOLID,1,m_crWater);
 		tbase2::windows::gdi::Pen   pnFish(PS_SOLID,1,m_crFish);
 		tbase2::windows::gdi::Pen   pnShark(PS_SOLID,1,m_crShark);
-		tbase2::windows::gdi::Pen	pnWhite(PS_SOLID,1,crWhite);
+		//tbase2::windows::gdi::Pen	pnWhite(PS_SOLID,1,crWhite);
 		unsigned					x		= 0;
 		unsigned					y	    = 0;
 
 		const unsigned uUnitW = width / m_uDataWidth;
 		const unsigned uUnitH = height / m_uDataHeight;
+		const unsigned uDeltaX = (width - (uUnitW * m_uDataWidth)) / 2;
+		const unsigned uDeltaY = (height - (uUnitH * m_uDataHeight)) / 2;
 
-		dc.SetPen(pnWhite);
+
+		x = uDeltaX;
+		y = uDeltaY;
+
+		dc.SetPen(pnWater);
 		for(unsigned u=0; u<sizData; u++)
 		{
 			if(m_pcData[u]==WatorSim::CHAR_FISH)
@@ -167,13 +173,13 @@ void WndDisplay::Render(tbase2::windows::gdi::DeviceContext &dc,
 			}
 
 			if(uUnitW>4 && uUnitH>4)
-				dc.SetPen(pnWhite);
+				dc.SetPen(pnWater);
 
 			Rectangle(dc,x,y,x+uUnitW,y+uUnitH);
 			x += uUnitW;
 			if((u+1)%m_uDataWidth==0)
 			{
-				x = 0;
+				x = uDeltaX;
 				y += uUnitH;
 			}
 		}

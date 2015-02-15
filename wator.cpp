@@ -45,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hinst,
 			}
 		}
 
-		iReturn = msg.wParam;
+		iReturn = static_cast<int>(msg.wParam);
 	}
 	catch(...)
 	{
