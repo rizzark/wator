@@ -18,12 +18,38 @@
 				static const unsigned DEFAULT_SHARKCOUNT;
 
 						WatorSim();
-						WatorSim(const unsigned width, const unsigned height, const unsigned uFishBreed, const unsigned uSharkBreed, const unsigned uSharkStarve, const unsigned uFishCount, const unsigned uSharkCount);
+
+						WatorSim(const unsigned width, 
+								 const unsigned height, 
+								 const unsigned uFishBreed, 
+								 const unsigned uSharkBreed, 
+								 const unsigned uSharkStarve, 
+								 const unsigned uFishCount, 
+								 const unsigned uSharkCount,
+								 std::ostream   *posCSVLog = NULL
+						);
+
 				virtual ~WatorSim();
 
-				virtual void Init	  (const unsigned width, const unsigned height, const unsigned uFishBreed, const unsigned uSharkBreed, const unsigned uSharkStarve, const unsigned uFishCount, const unsigned uSharkCount);
-				virtual void SetConfig(const unsigned uFishBreed, const unsigned uSharkBreed, const unsigned uSharkStarve);
-				virtual void Reset	  ();
+				virtual void Init(const unsigned width, 
+								  const unsigned height, 
+								  const unsigned uFishBreed, 
+								  const unsigned uSharkBreed, 
+								  const unsigned uSharkStarve, 
+								  const unsigned uFishCount, 
+								  const unsigned uSharkCount,
+								  std::ostream   *posCSVLog = NULL
+				);
+
+				virtual void InitDefault(std::ostream *posCSVLog = NULL
+				);
+
+				virtual void SetConfig(const unsigned uFishBreed, 
+									   const unsigned uSharkBreed, 
+									   const unsigned uSharkStarve
+				);
+
+				virtual void Reset		();
 
 				virtual void Get(char *pcData, const size_t sizData);
 
@@ -41,6 +67,14 @@
 				virtual inline unsigned GetSharkStarve() const {return m_uSharkStarve;}
 
 				virtual void Step();
+
+				virtual std::ostream* SetLog(std::ostream *posCSVLog
+				);
+
+				virtual inline const std::vector<std::pair<unsigned,unsigned> >& GetHistory() const
+				{
+					return m_vHistory;
+				}
 
 		protected:
 					virtual void ClearFields();
@@ -81,6 +115,10 @@
 				unsigned	   m_uFishCount;
 				unsigned	   m_uSharkCount;
 				unsigned	   m_uLoops;
+
+				std::ostream							   *m_posCSVLog;
+				std::vector<std::pair<unsigned,unsigned> > m_vHistory;
+				const size_t							   m_sizHistory;
 
 				void init();
 	};

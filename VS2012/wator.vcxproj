@@ -181,6 +181,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\dlgsettings.cpp" />
+    <ClCompile Include="..\renderer.cpp" />
     <ClCompile Include="..\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -189,17 +190,14 @@
     </ClCompile>
     <ClCompile Include="..\wator.cpp" />
     <ClCompile Include="..\watorsim.cpp" />
-    <ClCompile Include="..\wnddisplay.cpp" />
-    <ClCompile Include="..\wndstatistic.cpp" />
     <ClCompile Include="..\wndwator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dlgsettings.h" />
+    <ClInclude Include="..\renderer.h" />
     <ClInclude Include="..\resource.h" />
     <ClInclude Include="..\stdafx.h" />
     <ClInclude Include="..\watorsim.h" />
-    <ClInclude Include="..\wnddisplay.h" />
-    <ClInclude Include="..\wndstatistic.h" />
     <ClInclude Include="..\wndwator.h" />
   </ItemGroup>
   <ItemGroup>

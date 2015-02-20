@@ -27,13 +27,10 @@
     <ClCompile Include="..\watorsim.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\wnddisplay.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="..\wndstatistic.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\wndwator.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\renderer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,13 +47,10 @@
     <ClInclude Include="..\watorsim.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="..\wnddisplay.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="..\wndstatistic.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="..\wndwator.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\renderer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

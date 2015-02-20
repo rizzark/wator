@@ -22,9 +22,17 @@ const unsigned WatorSim::DEFAULT_SHARKCOUNT  = 250;
 
 
 
-WatorSim::WatorSim()
+WatorSim::WatorSim() : m_pbFish(NULL),
+					   m_pbFishMove(NULL),
+					   m_pbFishBreed(NULL),
+					   m_pbShark(NULL),
+					   m_pbSharkMove(NULL),
+					   m_pbSharkBreed(NULL),
+					   m_pbSharkStarve(NULL),
+					   m_posCSVLog(NULL),
+					   m_sizHistory(5000)
 {
-	Init(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_FISHBREED,DEFAULT_SHARKBREED,DEFAULT_SHARKSTARVE,DEFAULT_FISHCOUNT,DEFAULT_SHARKCOUNT);
+	InitDefault();
 } // end - WatorSim::WatorSim
 
 
@@ -34,7 +42,16 @@ WatorSim::WatorSim(const unsigned width,
 				   const unsigned uSharkBreed,
 				   const unsigned uSharkStarve,
 				   const unsigned uFishCount,
-				   const unsigned uSharkCount)
+				   const unsigned uSharkCount,
+				   std::ostream   *posCSVLog) : m_pbFish(NULL),
+												 m_pbFishMove(NULL),
+												 m_pbFishBreed(NULL),
+												 m_pbShark(NULL),
+												 m_pbSharkMove(NULL),
+												 m_pbSharkBreed(NULL),
+												 m_pbSharkStarve(NULL),
+												 m_posCSVLog(posCSVLog),
+												 m_sizHistory(5000)
 {
 	Init(width,height,uFishBreed,uSharkBreed,uSharkStarve,uFishCount,uSharkCount);
 } // end - WatorSim::WatorSim
@@ -58,9 +75,18 @@ void WatorSim::Init(const unsigned width,
 				    const unsigned uSharkBreed,
 				    const unsigned uSharkStarve,
 					const unsigned uFishCount,
-					const unsigned uSharkCount)
+					const unsigned uSharkCount,
+					std::ostream   *posCSVLog)
 {
 	unsigned u = 0;
+
+	delete[] m_pbFish; m_pbFish=NULL;
+	delete[] m_pbFishMove; m_pbFishMove=NULL;
+	delete[] m_pbFishBreed; m_pbFishBreed=NULL;
+	delete[] m_pbShark; m_pbShark=NULL;
+	delete[] m_pbSharkMove; m_pbSharkMove=NULL;
+	delete[] m_pbSharkBreed; m_pbSharkBreed=NULL;
+	delete[] m_pbSharkStarve; m_pbSharkStarve=NULL;
 
 	m_uWidth		= width;
 	m_uHeight		= height;
@@ -78,8 +104,16 @@ void WatorSim::Init(const unsigned width,
 	m_pbSharkBreed	= new byte[m_sizField];
 	m_pbSharkStarve = new byte[m_sizField];
 
+	m_vHistory.clear();
 	Reset();
+	SetLog(posCSVLog);
 } // end - WatorSim::Init
+
+
+void WatorSim::InitDefault(std::ostream *posCSVLog)
+{
+	Init(DEFAULT_WIDTH,DEFAULT_HEIGHT,DEFAULT_FISHBREED,DEFAULT_SHARKBREED,DEFAULT_SHARKSTARVE,DEFAULT_FISHCOUNT,DEFAULT_SHARKCOUNT,posCSVLog);
+} // end - WatorSim::InitDefault
 
 
 void WatorSim::SetConfig(const unsigned uFishBreed,
@@ -89,6 +123,8 @@ void WatorSim::SetConfig(const unsigned uFishBreed,
 	m_uFishBreed   = uFishBreed;
 	m_uSharkBreed  = uSharkBreed;
 	m_uSharkStarve = uSharkStarve;
+
+	m_vHistory.clear();
 } // end - WatorSim::SetConfig
 
 
@@ -100,6 +136,7 @@ void WatorSim::Reset()
 	m_uSharkCount	= 0;
 	m_uLoops		= 0;
 
+	m_vHistory.clear();
 	ClearFields();
 	for(u=0; u<m_uFishStart; u++)
 	{
@@ -183,7 +220,36 @@ void WatorSim::Step()
 	}
 
 	m_uLoops++;
+
+	if(m_vHistory.size()>m_sizHistory)
+	{
+		size_t uDiff = m_vHistory.size() - m_sizHistory;
+		m_vHistory.erase(m_vHistory.begin(),m_vHistory.begin()+uDiff);
+	}
+
+	m_vHistory.push_back(std::pair<unsigned,unsigned>(m_uFishCount,m_uSharkCount));
+
+	if(m_posCSVLog)
+	{
+		*m_posCSVLog << m_uLoops		<< ", ";
+		*m_posCSVLog << m_uWidth		<< ", ";
+		*m_posCSVLog << m_uHeight		<< ", ";
+		*m_posCSVLog << m_uFishBreed	<< ", ";
+		*m_posCSVLog << m_uSharkBreed	<< ", ";
+		*m_posCSVLog << m_uSharkStarve	<< ", ";
+		*m_posCSVLog << m_uFishCount	<< ", ";
+		*m_posCSVLog << m_uSharkCount	<< "\r\n";
+	}
 } // end - WatorSim::Step
+
+
+std::ostream* WatorSim::SetLog(std::ostream *posCSVLog)
+{
+	std::ostream *posOld = m_posCSVLog;
+
+	m_posCSVLog = posCSVLog;
+	return posOld;
+} // end - WatorSim::SetLog
 
 
 void WatorSim::ClearFields()

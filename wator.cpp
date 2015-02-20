@@ -28,14 +28,14 @@ int WINAPI WinMain(HINSTANCE hinst,
 	int iReturn	= 0;
 	try
 	{
-		WatorSim ws;
-		WndWator wnd(ws);
+		WatorSim		  ws;
+		const std::locale locale(tbase2::unicode::WStringToCodepage(gl_Module.String(IDS_LOCALE).c_str(),CP_ACP,0));
+		WndWator		  wnd(ws,locale);
 
 		MSG msg;
 		int i = 0;
 
-		srand((unsigned)time(NULL));
-
+		srand(static_cast<unsigned>(time(NULL)));
 		while(GetMessage(&msg,NULL,0,0))
 		{
 			if(!wnd.PreTranslateMsg(msg))

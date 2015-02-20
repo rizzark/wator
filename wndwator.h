@@ -8,8 +8,7 @@ $HeadURL$
 #pragma once
 
 #include "watorsim.h"
-#include "wnddisplay.h"
-#include "wndstatistic.h"
+#include "renderer.h"
 
 
 class WndWator : public tbase2::windows::gui::Wnd
@@ -17,13 +16,19 @@ class WndWator : public tbase2::windows::gui::Wnd
 	public:
 			static const std::wstring CLASSNAME;
 
-					WndWator(WatorSim &wator);
+					WndWator(WatorSim		   &wator,
+							 const std::locale &locale
+					);
+
 			virtual ~WndWator();
 				
 			static bool RegisterClass(HINSTANCE hinst);
 
 			virtual bool PreTranslateMsg(MSG &msg
 			);
+
+
+			virtual void PostRestart();
 
 	protected:
 				virtual bool OnCreate(CREATESTRUCT *pcs,
@@ -39,10 +44,18 @@ class WndWator : public tbase2::windows::gui::Wnd
 									   HWND hwndFrom	//!< Handle of sender
 				);
 
+				virtual bool OnHScroll(WORD nScroll,		//!< Scroll-command
+									   WORD nPos,		//!< Scroll position for SB_THUMBPOSITON of SB_THUMBTRACK
+									   HWND hwndFrom	//!< Sending window, NULL for standard scroll bar
+				);
+
 				virtual bool OnClose(
 				);
 
 				virtual bool OnDestroy(
+				);
+
+				virtual bool OnPaint(
 				);
 
 				virtual void OnStartStop ();
@@ -50,24 +63,27 @@ class WndWator : public tbase2::windows::gui::Wnd
 				virtual void OnSingleStep();
 				virtual void OnRestart	 ();
 
+				virtual void UpdateDisplay(tbase2::windows::gdi::DeviceContext &dc
+				);
+
 	private:
 			WatorSim					  &m_wator;
+			Renderer					  m_Renderer;
+			const std::locale			  &m_locale;
 			tbase2::windows::gdi::Font	  m_fntDlg;
 			tbase2::windows::gui::Button  m_pbtSettings;
 			tbase2::windows::gui::Button  m_pbtStartStop;
 			tbase2::windows::gui::Button  m_pbtSingleStep;
 			tbase2::windows::gui::Button  m_pbtRestart;
-			WndDisplay					  m_wndDisplay;
-			WndStatistic				  m_wndStatistic;
+			tbase2::windows::gui::Slider  m_sldIntervall;
+			tbase2::windows::gui::Static  m_stcIntervall;
 			tbase2::windows::gui::HLayout m_ltDlg;
 			tbase2::windows::gui::VLayout m_ltSim;
 			tbase2::windows::gui::VLayout m_ltButtons;
-			char						  *m_pcData;
-			size_t						  m_sizData;
-			COLORREF					  m_crWater;
-			COLORREF					  m_crFish;
-			COLORREF					  m_crShark;
 			bool						  m_flRunning;
 			bool						  m_flStartup;
+			int							  m_iDisplayPane;
+			int							  m_iStatisticPane;
+			unsigned					  m_uIntervall;
 };
 
