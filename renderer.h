@@ -7,8 +7,6 @@ $HeadURL$
 
 #pragma once
 
-#include "watorsim.h"
-
 class Renderer
 {
 	public:
@@ -17,7 +15,7 @@ class Renderer
 
 			virtual ~Renderer();
 
-			virtual void Render(WatorSim							&wator,
+			virtual void Render(wator::ISimulation					&wator,
 								tbase2::windows::gdi::DeviceContext &dc,
 								const unsigned						width,
 								const unsigned						height
@@ -33,22 +31,18 @@ class Renderer
 			virtual inline COLORREF GetColorWater() const	{return m_colorWater;}
 
 	protected:
-				virtual void RenderDisplay(WatorSim							   &wator,
+				virtual void RenderDisplay(wator::ISimulation				   &wator,
 										   tbase2::windows::gdi::DeviceContext &dc,
-										   const tbase2::windows::gdi::Rect	   &rcDst,
-										   const char						   pcData[],
-										   const size_t						   lenData
+										   const tbase2::windows::gdi::Rect	   &rcDst
 				);
 
-				virtual void RenderDiagram(WatorSim							   &wator,
+				virtual void RenderDiagram(wator::ISimulation				   &wator,
 										   tbase2::windows::gdi::DeviceContext &dc,
-										   const tbase2::windows::gdi::Rect	   &rcDst,
-										   const char						   pcData[],
-										   const size_t						   lenData
+										   const tbase2::windows::gdi::Rect	   &rcDst
 				);
 
 
-				virtual RECT RenderText(WatorSim							&wator,
+				virtual RECT RenderText(wator::ISimulation					&wator,
 									    tbase2::windows::gdi::DeviceContext &dc,
 										const tbase2::windows::gdi::Rect	&rcDst
 				);

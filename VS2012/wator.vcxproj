@@ -189,7 +189,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\wator.cpp" />
-    <ClCompile Include="..\watorsim.cpp" />
     <ClCompile Include="..\wndwator.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -197,11 +196,15 @@
     <ClInclude Include="..\renderer.h" />
     <ClInclude Include="..\resource.h" />
     <ClInclude Include="..\stdafx.h" />
-    <ClInclude Include="..\watorsim.h" />
     <ClInclude Include="..\wndwator.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\wator.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\watorsim\watorsim.vcxproj">
+      <Project>{e1b3d826-9c94-475a-b05b-763090548f70}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

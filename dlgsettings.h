@@ -7,7 +7,6 @@ $HeadURL$
 
 #pragma once
 
-#include "watorsim.h"
 #include "renderer.h"
 
 
@@ -64,10 +63,10 @@ class DlgSettings : public tbase2::windows::gui::Dlg
 			static const unsigned DEFAULT_INTERVALL;
 
 
-					DlgSettings(WatorSim		  &ws, 
-								Renderer		  &renderer,
-								const std::locale &locale,
-								const bool		  flRestart=false
+					DlgSettings(wator::ISimulation &ws, 
+								Renderer		   &renderer,
+								const std::locale  &locale,
+								const bool		   flRestart=false
 					);
 
 			virtual ~DlgSettings();
@@ -102,7 +101,7 @@ class DlgSettings : public tbase2::windows::gui::Dlg
 				);
 
 	private:
-			WatorSim								   &m_ws;
+			wator::ISimulation						   &m_ws;
 			Renderer								   &m_renderer;
 			const bool								   m_flRestart;
 			tbase2::windows::gui::EditNumber<unsigned> m_edfWidth;

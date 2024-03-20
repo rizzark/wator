@@ -33,18 +33,18 @@ static const UINT_PTR SLD_INTERVALL  = 1006;
 const std::wstring WndWator::CLASSNAME = L"Wator:WndClass:WndWator";
 
 
-WndWator::WndWator(WatorSim			 &wator,
-				   const std::locale &locale) : tbase2::windows::gui::Wnd(),
-												m_wator(wator),
-												m_locale(locale),
-												m_ltDlg(5,5),
-												m_ltSim(0,2),
-												m_ltButtons(0,2),
-												m_Renderer(locale),
-												m_flRunning(false),
-												m_iDisplayPane(-1),
-												m_iStatisticPane(-1),
-												m_uIntervall(DlgSettings::DEFAULT_INTERVALL)
+WndWator::WndWator(wator::ISimulation &wator,
+				   const std::locale  &locale) : tbase2::windows::gui::Wnd(),
+												 m_wator(wator),
+												 m_locale(locale),
+ 												 m_ltDlg(5,5),
+												 m_ltSim(0,2),
+												 m_ltButtons(0,2),
+												 m_Renderer(locale),
+												 m_flRunning(false),
+												 m_iDisplayPane(-1),
+												 m_iStatisticPane(-1),
+												 m_uIntervall(DlgSettings::DEFAULT_INTERVALL)
 {
 	try
 	{
@@ -329,8 +329,8 @@ void WndWator::OnSingleStep()
 	tbase2::windows::gdi::DeviceContext dc(*this);
 
 	m_wator.Step();
-	const unsigned uFishCount  = m_wator.GetFishCount();
-	const unsigned uSharkCount = m_wator.GetSharkCount();
+	const unsigned uFishCount  = m_wator.FishCount;
+	const unsigned uSharkCount = m_wator.SharkCount;
 	UpdateDisplay(dc);
 
 	if(uFishCount==0 || uSharkCount==0)

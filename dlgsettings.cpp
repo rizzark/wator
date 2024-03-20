@@ -22,23 +22,23 @@ extern tbase2::windows::Module gl_Module;
 const unsigned DlgSettings::DEFAULT_INTERVALL = 90;
 
 
-DlgSettings::DlgSettings(WatorSim		   &ws,
-						 Renderer		   &renderer,
-						 const std::locale &locale,
-						 const bool		   flRestart) : tbase2::windows::gui::Dlg(GetModuleHandle(NULL),MAKEINTRESOURCE(DLG_WATOR)),
-														m_ws(ws),
-														m_renderer(renderer),
-														m_flRestart(flRestart),
-														m_edfWidth(locale),
-														m_edfHeight(locale),
-														m_edfFishStart(locale),
-														m_edfSharkStart(locale),
-														m_edfFishBreed(locale),
-														m_edfSharkBreed(locale),
-														m_edfSharkStarve(locale),
-														m_rgbFish(locale),
-														m_rgbShark(locale),
-														m_rgbWater(locale)
+DlgSettings::DlgSettings(wator::ISimulation &ws,
+						 Renderer		    &renderer,
+						 const std::locale  &locale,
+						 const bool		    flRestart) : tbase2::windows::gui::Dlg(GetModuleHandle(NULL),MAKEINTRESOURCE(DLG_WATOR)),
+														 m_ws(ws),
+ 														 m_renderer(renderer),
+														 m_flRestart(flRestart),
+														 m_edfWidth(locale),
+														 m_edfHeight(locale),
+														 m_edfFishStart(locale),
+														 m_edfSharkStart(locale),
+														 m_edfFishBreed(locale),
+ 														 m_edfSharkBreed(locale),
+														 m_edfSharkStarve(locale),
+														 m_rgbFish(locale),
+														 m_rgbShark(locale),
+														 m_rgbWater(locale)
 {
 } // end - DlgSettings::DlgSettings
 
@@ -146,13 +146,13 @@ bool DlgSettings::OnCtlColorEdit(HDC	hdc,
 
 void DlgSettings::DataToDialog()
 {
-	m_edfWidth.SetValue(m_ws.GetWidth());
-	m_edfHeight.SetValue(m_ws.GetHeight());
-	m_edfFishStart.SetValue(m_ws.GetFishStart());
-	m_edfSharkStart.SetValue(m_ws.GetSharkStart());
-	m_edfFishBreed.SetValue(m_ws.GetFishBreed());
-	m_edfSharkBreed.SetValue(m_ws.GetSharkBreed());
-	m_edfSharkStarve.SetValue(m_ws.GetSharkStarve());
+	m_edfWidth.SetValue(m_ws.Width);
+	m_edfHeight.SetValue(m_ws.Height);
+	m_edfFishStart.SetValue(m_ws.FishStart);
+	m_edfSharkStart.SetValue(m_ws.SharkStart);
+	m_edfFishBreed.SetValue(m_ws.FishBreed);
+	m_edfSharkBreed.SetValue(m_ws.SharkBreed);
+	m_edfSharkStarve.SetValue(m_ws.SharkStarve);
 
 	m_rgbFish.SetValue(m_renderer.GetColorFish());
 	m_rgbShark.SetValue(m_renderer.GetColorShark());
@@ -191,10 +191,10 @@ bool DlgSettings::DialogToData(const bool flValidate)
 			if((uFishStart+uSharkStart)>uMaxFields)
 				throw tbase2::validation::ValidationFailed(m_edfFishStart.GetID(),tbase2::StringtableMsg(gl_Module,MSG_TOO_MANY_ANIMALS,1,std::to_wstring(uMaxFields).c_str()));
 
-			if(	   uWidth!=m_ws.GetWidth() 
-				|| uHeight!=m_ws.GetHeight() 
-				|| uFishStart!=m_ws.GetFishStart()
-				|| uSharkStart!=m_ws.GetSharkStart())
+			if(	   uWidth!=m_ws.Width 
+				|| uHeight!=m_ws.Height 
+				|| uFishStart!=m_ws.FishStart
+				|| uSharkStart!=m_ws.SharkStart)
 			{
 				if(!m_flRestart)
 					throw tbase2::validation::ValidationFailed(m_edfWidth.GetID(),tbase2::StringtableMsg(gl_Module,MSG_RESTART_REQUIRED));

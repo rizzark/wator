@@ -7,7 +7,6 @@ $HeadURL$
 
 #include "stdafx.h"
 #include "wndwator.h"
-#include "watorsim.h"
 
 
 #ifdef _DEBUG
@@ -28,9 +27,11 @@ int WINAPI WinMain(HINSTANCE hinst,
 	int iReturn	= 0;
 	try
 	{
-		WatorSim		  ws;
+		auto wator = std::shared_ptr<wator::ISimulation>(wator::CreateSimulation("sim1"), [](wator::ISimulation* p) { p->Delete(); });
+
+
 		const std::locale locale(tbase2::unicode::WStringToCodepage(gl_Module.String(IDS_LOCALE).c_str(),CP_ACP,0));
-		WndWator		  wnd(ws,locale);
+		WndWator		  wnd(*wator,locale);
 
 		MSG msg;
 		int i = 0;

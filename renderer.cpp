@@ -53,14 +53,14 @@ void Renderer::SetDefault()
 } // end - Renderer::SetDefault
 
 
-void Renderer::Render(WatorSim							  &wator,
+void Renderer::Render(wator::ISimulation				  &wator,
 					  tbase2::windows::gdi::DeviceContext &dc,
 					  const unsigned					  width,
 					  const unsigned					  height)
 {
 	try
 	{
-		const size_t			   lenData = wator.GetWidth() * wator.GetHeight();
+		const size_t			   lenData = wator.Width * wator.Height;
 		tbase2::buffer			   bfData(lenData);
 		char					   *pcData = reinterpret_cast<char*>(bfData.getBuffer());
 		unsigned				   hDisplay = height>300 ? height-100 : height;
@@ -68,10 +68,10 @@ void Renderer::Render(WatorSim							  &wator,
 		tbase2::windows::gdi::Rect rcDisplay(0,0,width,hDisplay);
 		tbase2::windows::gdi::Rect rcDiagram(0,hDisplay+1,width,hDisplay+hDiagram);
 
-		wator.Get(pcData,lenData);
-		RenderDisplay(wator,dc,rcDisplay,pcData,lenData);
-		if(hDiagram)
-			RenderDiagram(wator,dc,rcDiagram,pcData,lenData);
+		//wator.Get(pcData,lenData);
+		RenderDisplay(wator, dc, rcDisplay);
+		if (hDiagram)
+			RenderDiagram(wator, dc, rcDiagram);
 	}
 	catch(std::exception &error)
 	{
@@ -84,11 +84,9 @@ void Renderer::Render(WatorSim							  &wator,
 } // end - Renderer::Render
 
 
-void Renderer::RenderDisplay(WatorSim							 &wator,
+void Renderer::RenderDisplay(wator::ISimulation					 &wator,
 							 tbase2::windows::gdi::DeviceContext &dc,
-							 const tbase2::windows::gdi::Rect	 &rcDst,
-							 const char							 pcData[],
-							 const size_t						 lenData)
+							 const tbase2::windows::gdi::Rect	 &rcDst)
 {
 	try
 	{
@@ -101,11 +99,11 @@ void Renderer::RenderDisplay(WatorSim							 &wator,
 		unsigned					x		= 0;
 		unsigned					y	    = 0;
 
-		const unsigned uUnitW = rcDst.width() / wator.GetWidth();
-		const unsigned uUnitH = rcDst.height() / wator.GetHeight();
-		const unsigned uDeltaX = (rcDst.width() - (uUnitW * wator.GetWidth())) / 2;
-		const unsigned uDeltaY = (rcDst.height() - (uUnitH * wator.GetHeight())) / 2;
-
+		const unsigned uUnitW = rcDst.width() / wator.Width;
+		const unsigned uUnitH = rcDst.height() / wator.Height;
+		const unsigned uDeltaX = (rcDst.width() - (uUnitW * wator.Width)) / 2;
+		const unsigned uDeltaY = (rcDst.height() - (uUnitH * wator.Height)) / 2;
+		const unsigned lenData = wator.Width * wator.Height;
 
 		x = uDeltaX;
 		y = uDeltaY;
@@ -113,12 +111,12 @@ void Renderer::RenderDisplay(WatorSim							 &wator,
 		dc.SetPen(pnWater);
 		for(unsigned u=0; u<lenData; u++)
 		{
-			if(pcData[u]==WatorSim::CHAR_FISH)
+			if(wator.IsFish(u))
 			{
 				dc.SetBrush(brFish);
 				dc.SetPen(pnFish);
 			}
-			else if(pcData[u]==WatorSim::CHAR_SHARK)
+			else if (wator.IsShark(u))
 			{
 				dc.SetBrush(brShark);
 				dc.SetPen(pnShark);
@@ -134,7 +132,7 @@ void Renderer::RenderDisplay(WatorSim							 &wator,
 
 			Rectangle(dc,x,y,x+uUnitW,y+uUnitH);
 			x += uUnitW;
-			if((u+1)%wator.GetWidth()==0)
+			if((u+1)%wator.Width==0)
 			{
 				x = uDeltaX;
 				y += uUnitH;
@@ -152,11 +150,9 @@ void Renderer::RenderDisplay(WatorSim							 &wator,
 } // end - Renderer::RenderDisplay
 
 
-void Renderer::RenderDiagram(WatorSim							 &wator,
+void Renderer::RenderDiagram(wator::ISimulation					 &wator,
 							 tbase2::windows::gdi::DeviceContext &dc,
-							 const tbase2::windows::gdi::Rect	 &rcDst,
-							 const char							 pcData[],
-							 const size_t						 lenData)
+							 const tbase2::windows::gdi::Rect	 &rcDst)
 {
 	try
 	{
@@ -173,7 +169,7 @@ void Renderer::RenderDiagram(WatorSim							 &wator,
 		if(uWRemain > 200)
 		{
 			tbase2::windows::gdi::Font fntGraph(dc,6,gl_strDlgFont.c_str());
-			const unsigned			   uMaxItems = wator.GetWidth() * wator.GetHeight();
+			const unsigned			   uMaxItems = wator.Width * wator.Height;
 
 			dc.SetFont(fntGraph);
 
@@ -287,7 +283,7 @@ void Renderer::RenderDiagram(WatorSim							 &wator,
 } // end - Renderer::RenderDiagram
 
 
-RECT Renderer::RenderText(WatorSim							  &wator,
+RECT Renderer::RenderText(wator::ISimulation				  &wator,
 						  tbase2::windows::gdi::DeviceContext &dc,
 						  const tbase2::windows::gdi::Rect	  &rcDst)
 {
@@ -298,9 +294,9 @@ RECT Renderer::RenderText(WatorSim							  &wator,
 		const std::wstring			wstrFish		   = gl_Module.String(IDS_FISHES);
 		const std::wstring			wstrShark		   = gl_Module.String(IDS_SHARKS);
 		const std::wstring			wstrIterations	   = gl_Module.String(IDS_CYCLES);
-		const std::wstring			wstrFishCount	   = tbase2::localize::to_locstring<wchar_t>(wator.GetFishCount(),m_locale);
-		const std::wstring			wstrSharkCount	   = tbase2::localize::to_locstring<wchar_t>(wator.GetSharkCount(),m_locale);
-		const std::wstring			wstrIterationCount = tbase2::localize::to_locstring<wchar_t>(wator.GetIterations(),m_locale);
+		const std::wstring			wstrFishCount	   = tbase2::localize::to_locstring<wchar_t>(wator.FishCount,m_locale);
+		const std::wstring			wstrSharkCount	   = tbase2::localize::to_locstring<wchar_t>(wator.SharkCount,m_locale);
+		const std::wstring			wstrIterationCount = tbase2::localize::to_locstring<wchar_t>(wator.Iterations,m_locale);
 		tbase2::windows::gdi::Font	fntText(dc,12,gl_strDlgFont.c_str());
 		SIZE						sizeTitles = {0,0};
 		SIZE						sizeValues = {0,0};

@@ -7,7 +7,6 @@ $HeadURL$
 
 #pragma once
 
-#include "watorsim.h"
 #include "renderer.h"
 
 
@@ -16,8 +15,8 @@ class WndWator : public tbase2::windows::gui::Wnd
 	public:
 			static const std::wstring CLASSNAME;
 
-					WndWator(WatorSim		   &wator,
-							 const std::locale &locale
+					WndWator(wator::ISimulation &wator,
+							 const std::locale  &locale
 					);
 
 			virtual ~WndWator();
@@ -67,7 +66,7 @@ class WndWator : public tbase2::windows::gui::Wnd
 				);
 
 	private:
-			WatorSim					  &m_wator;
+			wator::ISimulation			  &m_wator;
 			Renderer					  m_Renderer;
 			const std::locale			  &m_locale;
 			tbase2::windows::gdi::Font	  m_fntDlg;

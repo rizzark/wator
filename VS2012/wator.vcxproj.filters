@@ -24,9 +24,6 @@
     <ClCompile Include="..\wator.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\watorsim.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\wndwator.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -42,9 +39,6 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="..\stdafx.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="..\watorsim.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="..\wndwator.h">
