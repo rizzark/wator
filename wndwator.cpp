@@ -98,7 +98,8 @@ bool WndWator::RegisterClass(HINSTANCE hinst)
 		wc.lpszMenuName	 = NULL;
 		wc.style		 = CS_HREDRAW | CS_VREDRAW;
 
-		flReturn = Wnd::RegisterClass(wc);
+		Wnd::RegisterClass(wc);
+		flReturn = true;
 	}
 	catch(...)
 	{
