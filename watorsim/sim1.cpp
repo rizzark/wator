@@ -92,12 +92,12 @@ void Sim1::Init(const unsigned width,
 	delete[] m_pbSharkBreed; m_pbSharkBreed = NULL;
 	delete[] m_pbSharkStarve; m_pbSharkStarve = NULL;
 
-	m_uWidth = width;
-	m_uHeight = height;
+	m_parameters.Width = width;
+	m_parameters.Height = height;
 	m_sizField = width * height;
-	m_uFishBreed = uFishBreed;
-	m_uSharkBreed = uSharkBreed;
-	m_uSharkStarve = uSharkStarve;
+	m_parameters.FishBreed = uFishBreed;
+	m_parameters.SharkBreed = uSharkBreed;
+	m_parameters.SharkStarve = uSharkStarve;
 	m_uFishStart = uFishCount;
 	m_uSharkStart = uSharkCount;
 	m_pbFish = new std::uint8_t[m_sizField];
@@ -114,8 +114,46 @@ void Sim1::Init(const unsigned width,
 } // end - Sim1::Init
 
 
+void Sim1::Init(const SIMULATION_PARAMETERS& args, const unsigned fishCount, const unsigned sharkCount, std::ostream* log)
+{
+	unsigned u = 0;
+
+	delete[] m_pbFish; m_pbFish = NULL;
+	delete[] m_pbFishMove; m_pbFishMove = NULL;
+	delete[] m_pbFishBreed; m_pbFishBreed = NULL;
+	delete[] m_pbShark; m_pbShark = NULL;
+	delete[] m_pbSharkMove; m_pbSharkMove = NULL;
+	delete[] m_pbSharkBreed; m_pbSharkBreed = NULL;
+	delete[] m_pbSharkStarve; m_pbSharkStarve = NULL;
+
+	m_parameters = args;
+
+	m_sizField = m_parameters.Width * m_parameters.Height;
+	m_uFishStart = fishCount;
+	m_uSharkStart = sharkCount;
+	m_pbFish = new std::uint8_t[m_sizField];
+	m_pbFishMove = new std::uint8_t[m_sizField];
+	m_pbFishBreed = new std::uint8_t[m_sizField];
+	m_pbShark = new std::uint8_t[m_sizField];
+	m_pbSharkMove = new std::uint8_t[m_sizField];
+	m_pbSharkBreed = new std::uint8_t[m_sizField];
+	m_pbSharkStarve = new std::uint8_t[m_sizField];
+
+	m_vHistory.clear();
+	Reset();
+	SetLog(log);
+} // end - Init
+
 void Sim1::InitDefault(std::ostream* posCSVLog)
 {
+	SIMULATION_PARAMETERS args;
+
+	args.Width = DEFAULT_WIDTH;
+	args.Height = DEFAULT_HEIGHT;
+	args.FishBreed = DEFAULT_FISHBREED;
+	args.SharkBreed = DEFAULT_SHARKBREED;
+	args.SharkStarve = DEFAULT_SHARKSTARVE;
+
 	Init(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_FISHBREED, DEFAULT_SHARKBREED, DEFAULT_SHARKSTARVE, DEFAULT_FISHCOUNT, DEFAULT_SHARKCOUNT, posCSVLog);
 } // end - Sim1::InitDefault
 
@@ -124,9 +162,9 @@ void Sim1::SetConfig(const unsigned uFishBreed,
 	const unsigned uSharkBreed,
 	const unsigned uSharkStarve)
 {
-	m_uFishBreed = uFishBreed;
-	m_uSharkBreed = uSharkBreed;
-	m_uSharkStarve = uSharkStarve;
+	m_parameters.FishBreed = uFishBreed;
+	m_parameters.SharkBreed = uSharkBreed;
+	m_parameters.SharkStarve = uSharkStarve;
 
 	m_vHistory.clear();
 } // end - Sim1::SetConfig
@@ -234,11 +272,11 @@ void Sim1::Step()
 	if (m_posCSVLog)
 	{
 		*m_posCSVLog << m_uLoops << ", ";
-		*m_posCSVLog << m_uWidth << ", ";
-		*m_posCSVLog << m_uHeight << ", ";
-		*m_posCSVLog << m_uFishBreed << ", ";
-		*m_posCSVLog << m_uSharkBreed << ", ";
-		*m_posCSVLog << m_uSharkStarve << ", ";
+		*m_posCSVLog << m_parameters.Width << ", ";
+		*m_posCSVLog << m_parameters.Height << ", ";
+		*m_posCSVLog << m_parameters.FishBreed << ", ";
+		*m_posCSVLog << m_parameters.SharkBreed << ", ";
+		*m_posCSVLog << m_parameters.SharkStarve << ", ";
 		*m_posCSVLog << m_uFishCount << ", ";
 		*m_posCSVLog << m_uSharkCount << "\r\n";
 	}
@@ -303,7 +341,7 @@ void Sim1::MoveFish(const unsigned uCurPos)
 	}
 
 	FishAddAge(uCurPos);
-	if (m_pbFishBreed[uCurPos] > m_uFishBreed && uBreedOfs != -1)
+	if (m_pbFishBreed[uCurPos] > m_parameters.FishBreed && uBreedOfs != -1)
 	{
 		FishAdd(uBreedOfs);
 		m_pbFishBreed[uCurPos] = 1;
@@ -351,7 +389,7 @@ void Sim1::MoveShark(const unsigned uCurPos)
 	}
 
 	SharkAddAge(uPos);
-	if (m_pbSharkBreed[uPos] > m_uSharkBreed && uBreedOfs != -1)
+	if (m_pbSharkBreed[uPos] > m_parameters.SharkBreed && uBreedOfs != -1)
 	{
 		if (m_pbFish[uBreedOfs] != 0)
 			FishKill(uBreedOfs);
@@ -371,7 +409,7 @@ void Sim1::MoveShark(const unsigned uCurPos)
 		uPos = uMoveOfs;
 	}
 
-	if (m_pbSharkStarve[uPos] > m_uSharkStarve)
+	if (m_pbSharkStarve[uPos] > m_parameters.SharkStarve)
 		SharkKill(uPos);
 } // end - Sim1::MoveShark
 
@@ -379,21 +417,21 @@ void Sim1::MoveShark(const unsigned uCurPos)
 void Sim1::GetNeighbours(const unsigned uOfs,
 	unsigned* puOfs)
 {
-	const unsigned x = uOfs % m_uWidth;
-	const unsigned y = uOfs / m_uWidth;
-	const unsigned x1 = (x % m_uWidth) ? x - 1 : x + m_uWidth - 1;
-	const unsigned x2 = ((x % m_uWidth) != (m_uWidth - 1)) ? x + 1 : x - m_uWidth + 1;
-	const unsigned y1 = (y % m_uHeight) ? y - 1 : y + m_uHeight - 1;
-	const unsigned y2 = ((y % m_uHeight) != (m_uHeight - 1)) ? y + 1 : y - m_uHeight + 1;
+	const unsigned x = uOfs % m_parameters.Width;
+	const unsigned y = uOfs / m_parameters.Width;
+	const unsigned x1 = (x % m_parameters.Width) ? x - 1 : x + m_parameters.Width - 1;
+	const unsigned x2 = ((x % m_parameters.Width) != (m_parameters.Width - 1)) ? x + 1 : x - m_parameters.Width + 1;
+	const unsigned y1 = (y % m_parameters.Height) ? y - 1 : y + m_parameters.Height - 1;
+	const unsigned y2 = ((y % m_parameters.Height) != (m_parameters.Height - 1)) ? y + 1 : y - m_parameters.Height + 1;
 
-	puOfs[0] = y1 * m_uWidth + x1;
-	puOfs[1] = y1 * m_uWidth + x;
-	puOfs[2] = y1 * m_uWidth + x2;
-	puOfs[3] = y * m_uWidth + x1;
-	puOfs[4] = y * m_uWidth + x2;
-	puOfs[5] = y2 * m_uWidth + x1;
-	puOfs[6] = y2 * m_uWidth + x;
-	puOfs[7] = y2 * m_uWidth + x2;
+	puOfs[0] = y1 * m_parameters.Width + x1;
+	puOfs[1] = y1 * m_parameters.Width + x;
+	puOfs[2] = y1 * m_parameters.Width + x2;
+	puOfs[3] = y * m_parameters.Width + x1;
+	puOfs[4] = y * m_parameters.Width + x2;
+	puOfs[5] = y2 * m_parameters.Width + x1;
+	puOfs[6] = y2 * m_parameters.Width + x;
+	puOfs[7] = y2 * m_parameters.Width + x2;
 } // end - Sim1::GetFreeNeighbour
 
 

@@ -43,6 +43,13 @@ namespace wator
 			std::ostream* posCSVLog = NULL
 		);
 
+		virtual void Init(
+			const SIMULATION_PARAMETERS& args,
+			const unsigned fishCount,
+			const unsigned sharkCount,
+			std::ostream* log = NULL
+		);
+
 		virtual void InitDefault(std::ostream* posCSVLog = NULL
 		);
 
@@ -62,14 +69,14 @@ namespace wator
 		virtual inline unsigned _getSharkCount() const { return m_uSharkCount; }
 		virtual inline unsigned _getIterations() const { return m_uLoops; }
 
-		virtual inline unsigned _getWidth() const { return m_uWidth; }
-		virtual inline unsigned _getHeight() const { return m_uHeight; }
+		virtual inline unsigned _getWidth() const { return m_parameters.Width; }
+		virtual inline unsigned _getHeight() const { return m_parameters.Height; }
 
 		virtual inline unsigned _getSharkStart() const { return m_uSharkStart; }
 		virtual inline unsigned _getFishStart() const { return m_uFishStart; }
-		virtual inline unsigned _getFishBreed() const { return m_uFishBreed; }
-		virtual inline unsigned _getSharkBreed() const { return m_uSharkBreed; }
-		virtual inline unsigned _getSharkStarve() const { return m_uSharkStarve; }
+		virtual inline unsigned _getFishBreed() const { return m_parameters.FishBreed; }
+		virtual inline unsigned _getSharkBreed() const { return m_parameters.SharkBreed; }
+		virtual inline unsigned _getSharkStarve() const { return m_parameters.SharkStarve; }
 
 		virtual void Step();
 
@@ -106,12 +113,13 @@ namespace wator
 		virtual void SharkKill(const unsigned uPos);
 
 	private:
-		unsigned	   m_uWidth;
-		unsigned	   m_uHeight;
+		SIMULATION_PARAMETERS m_parameters;
+		//unsigned	   m_uWidth;
+		//unsigned	   m_uHeight;
 		size_t		   m_sizField;
-		unsigned	   m_uFishBreed;
-		unsigned	   m_uSharkBreed;
-		unsigned	   m_uSharkStarve;
+		//unsigned	   m_uFishBreed;
+		//unsigned	   m_uSharkBreed;
+		//unsigned	   m_uSharkStarve;
 
 		unsigned	   m_uFishStart;
 		unsigned	   m_uSharkStart;

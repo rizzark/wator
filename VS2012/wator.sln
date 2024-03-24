@@ -3,13 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wator", "wator.vcxproj", "{40144BDD-9509-48B5-A9CB-6A500D96CE21}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F} = {F2F09346-9BCD-4A5D-8196-5D11E2E6007F}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tbase2", "..\tbase2\VS2012\tbase2.vcxproj", "{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "watorsim", "..\watorsim\watorsim.vcxproj", "{E1B3D826-9C94-475A-B05B-763090548F70}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "..\Demo\Demo.vcxproj", "{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,14 +24,6 @@ Global
 		{40144BDD-9509-48B5-A9CB-6A500D96CE21}.Release|Win32.Build.0 = Release|Win32
 		{40144BDD-9509-48B5-A9CB-6A500D96CE21}.Release|x64.ActiveCfg = Release|x64
 		{40144BDD-9509-48B5-A9CB-6A500D96CE21}.Release|x64.Build.0 = Release|x64
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}.Debug|Win32.ActiveCfg = Debug_Unicode|Win32
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}.Debug|Win32.Build.0 = Debug_Unicode|Win32
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}.Debug|x64.ActiveCfg = Debug_Unicode|x64
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}.Debug|x64.Build.0 = Debug_Unicode|x64
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}.Release|Win32.ActiveCfg = Release_Unicode|Win32
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}.Release|Win32.Build.0 = Release_Unicode|Win32
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}.Release|x64.ActiveCfg = Release_Unicode|x64
-		{F2F09346-9BCD-4A5D-8196-5D11E2E6007F}.Release|x64.Build.0 = Release_Unicode|x64
 		{E1B3D826-9C94-475A-B05B-763090548F70}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E1B3D826-9C94-475A-B05B-763090548F70}.Debug|Win32.Build.0 = Debug|Win32
 		{E1B3D826-9C94-475A-B05B-763090548F70}.Debug|x64.ActiveCfg = Debug|x64
@@ -43,6 +32,14 @@ Global
 		{E1B3D826-9C94-475A-B05B-763090548F70}.Release|Win32.Build.0 = Release|Win32
 		{E1B3D826-9C94-475A-B05B-763090548F70}.Release|x64.ActiveCfg = Release|x64
 		{E1B3D826-9C94-475A-B05B-763090548F70}.Release|x64.Build.0 = Release|x64
+		{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}.Debug|Win32.Build.0 = Debug|Win32
+		{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}.Debug|x64.ActiveCfg = Debug|x64
+		{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}.Debug|x64.Build.0 = Debug|x64
+		{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}.Release|Win32.ActiveCfg = Release|Win32
+		{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}.Release|Win32.Build.0 = Release|Win32
+		{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}.Release|x64.ActiveCfg = Release|x64
+		{3DB4B19A-A587-45B3-893D-1AF78E9B5A4B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,6 +8,16 @@
 
 namespace wator
 {
+	struct SIMULATION_PARAMETERS
+	{
+		unsigned Width;
+		unsigned Height;
+		unsigned FishBreed;
+		unsigned SharkBreed;
+		unsigned SharkStarve;
+	};
+
+
 	struct ISimulation : public IObject
 	{
 		virtual void Init(const unsigned width,
