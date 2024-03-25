@@ -35,5 +35,11 @@
     <ClInclude Include="IObject.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="IRandomNumberProvider.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="CRandomProvider.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

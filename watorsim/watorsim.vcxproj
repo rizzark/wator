@@ -88,7 +88,9 @@
     <ClCompile Include="watorsim.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CRandomProvider.h" />
     <ClInclude Include="IObject.h" />
+    <ClInclude Include="IRandomNumberProvider.h" />
     <ClInclude Include="ISimulation.h" />
     <ClInclude Include="sim1.h" />
     <ClInclude Include="watorsim.h" />

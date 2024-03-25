@@ -1,13 +1,14 @@
 #pragma once
 
 #include "ISimulation.h"
+#include "IRandomNumberProvider.h"
 
 namespace wator
 {
 	class Sim1 : public ISimulation
 	{
 	public:
-		Sim1();
+		Sim1(IRandomNumberProvider& rnd);
 
 		virtual ~Sim1();
 
@@ -53,6 +54,7 @@ namespace wator
 		virtual void SharkKill(const unsigned uPos);
 
 	private:
+		IRandomNumberProvider& m_rnd;
 		SIMULATION_PARAMETERS m_parameter;
 		size_t				  m_sizField;
 		SIMULATION_STATUS	  m_status;

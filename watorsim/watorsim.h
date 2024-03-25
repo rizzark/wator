@@ -3,9 +3,12 @@
 #include <string>
 
 #include "ISimulation.h"
+#include "IRandomNumberProvider.h"
 
 namespace wator
 {
-	ISimulation* CreateSimulation(const std::string& name);
+	IRandomNumberProvider* CreateRandomProvider(const std::string& name);
+
+	ISimulation* CreateSimulation(const std::string& name, IRandomNumberProvider& rnd);
 }
 

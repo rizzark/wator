@@ -9,13 +9,15 @@
 
 namespace wator
 {
-Sim1::Sim1() : m_pbFish(NULL),
-m_pbFishMove(NULL),
-m_pbFishBreed(NULL),
-m_pbShark(NULL),
-m_pbSharkMove(NULL),
-m_pbSharkBreed(NULL),
-m_pbSharkStarve(NULL)
+Sim1::Sim1(IRandomNumberProvider& rnd) 
+	: m_rnd(rnd), 
+	m_pbFish(NULL),
+	m_pbFishMove(NULL),
+	m_pbFishBreed(NULL),
+	m_pbShark(NULL),
+	m_pbSharkMove(NULL),
+	m_pbSharkBreed(NULL),
+	m_pbSharkStarve(NULL)
 {
 	InitDefault();
 } // end - Sim1::Sim1
@@ -103,7 +105,7 @@ void Sim1::Reset()
 
 		do
 		{
-			uRandom = (unsigned)(rand() % m_sizField);
+			uRandom = m_rnd.Get(static_cast<unsigned>(m_sizField - 1));
 		} while (m_pbFish[uRandom] != 0);
 		FishAdd(uRandom);
 		m_status.FishCount++;
@@ -115,7 +117,7 @@ void Sim1::Reset()
 
 		do
 		{
-			uRandom = (unsigned)(rand() % m_sizField);
+			uRandom = m_rnd.Get(static_cast<unsigned>(m_sizField - 1));
 		} while (m_pbFish[uRandom] != 0 || m_pbShark[uRandom] != 0);
 		SharkAdd(uRandom);
 		m_status.SharkCount++;
@@ -199,13 +201,13 @@ void Sim1::MoveFish(const unsigned uCurPos)
 	{
 		do
 		{
-			uBreedOfs = puFree[rand() % uFree];
-			uMoveOfs = puFree[rand() % uFree];
+			uBreedOfs = puFree[m_rnd.Get(uFree - 1)];
+			uMoveOfs = puFree[m_rnd.Get(uFree - 1)];
 		} while (uBreedOfs == uMoveOfs);
 	}
 	else if (uFree > 0)
 	{
-		uBreedOfs = puFree[rand() % uFree];
+		uBreedOfs = puFree[m_rnd.Get(uFree - 1)];
 		uMoveOfs = -1;
 	}
 
@@ -247,13 +249,13 @@ void Sim1::MoveShark(const unsigned uCurPos)
 	{
 		do
 		{
-			uBreedOfs = puFree[rand() % uFree];
-			uMoveOfs = puFree[rand() % uFree];
+			uBreedOfs = puFree[m_rnd.Get(uFree - 1)];
+			uMoveOfs = puFree[m_rnd.Get(uFree - 1)];
 		} while (uBreedOfs == uMoveOfs);
 	}
 	else if (uFree > 0)
 	{
-		uBreedOfs = puFree[rand() % uFree];
+		uBreedOfs = puFree[m_rnd.Get(uFree - 1)];
 		uMoveOfs = -1;
 	}
 

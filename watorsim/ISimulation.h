@@ -22,7 +22,7 @@ namespace wator
 		unsigned InitialSharkCount;
 	};
 
-
+		
 	struct SIMULATION_STATUS
 	{
 		unsigned FishCount;

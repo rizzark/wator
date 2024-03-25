@@ -17,6 +17,7 @@ $HeadURL$
 tbase2::windows::Module gl_Module;
 
 
+
 int WINAPI WinMain(HINSTANCE hinst,
 				   HINSTANCE hinstPrev,
 				   LPSTR	 lpCmdLine,
@@ -27,7 +28,8 @@ int WINAPI WinMain(HINSTANCE hinst,
 	int iReturn	= 0;
 	try
 	{
-		auto wator = std::shared_ptr<wator::ISimulation>(wator::CreateSimulation("sim1"), [](wator::ISimulation* p) { p->Delete(); });
+		auto rnd = std::shared_ptr<wator::IRandomNumberProvider>(wator::CreateRandomProvider("C"), [](wator::IRandomNumberProvider* p) { p->Delete(); });
+		auto wator = std::shared_ptr<wator::ISimulation>(wator::CreateSimulation("sim1", *rnd), [](wator::ISimulation* p) { p->Delete(); });
 
 
 		const std::locale locale(tbase2::unicode::WStringToCodepage(gl_Module.String(IDS_LOCALE).c_str(),CP_ACP,0));

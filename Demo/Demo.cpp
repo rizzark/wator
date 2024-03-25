@@ -24,8 +24,9 @@ struct Settings
 int main()
 {
     std::cout << "Hello World!\n";
-
-    auto wator = std::shared_ptr<wator::ISimulation>(wator::CreateSimulation("sim1"), [](wator::ISimulation* p) { p->Delete(); });
+    
+    auto rnd = std::shared_ptr<wator::IRandomNumberProvider>(wator::CreateRandomProvider("C"), [](wator::IRandomNumberProvider* p) { p->Delete(); });
+    auto wator = std::shared_ptr<wator::ISimulation>(wator::CreateSimulation("sim1", *rnd), [](wator::ISimulation* p) { p->Delete(); });
 
 
 
