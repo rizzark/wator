@@ -60,13 +60,14 @@ void Renderer::Render(wator::ISimulation				  &wator,
 {
 	try
 	{
-		const size_t			   lenData = wator.Width * wator.Height;
-		tbase2::buffer			   bfData(lenData);
-		char					   *pcData = reinterpret_cast<char*>(bfData.getBuffer());
-		unsigned				   hDisplay = height>300 ? height-100 : height;
-		unsigned				   hDiagram = height>300 ? 100 : 0;
-		tbase2::windows::gdi::Rect rcDisplay(0,0,width,hDisplay);
-		tbase2::windows::gdi::Rect rcDiagram(0,hDisplay+1,width,hDisplay+hDiagram);
+		const wator::SIMULATION_PARAMETERS& parameter = wator.Parameter;
+		const size_t						lenData = parameter.Width * parameter.Height;
+		tbase2::buffer						bfData(lenData);
+		char								*pcData = reinterpret_cast<char*>(bfData.getBuffer());
+		unsigned							hDisplay = height>300 ? height-100 : height;
+		unsigned							hDiagram = height>300 ? 100 : 0;
+		tbase2::windows::gdi::Rect			rcDisplay(0,0,width,hDisplay);
+		tbase2::windows::gdi::Rect			rcDiagram(0,hDisplay+1,width,hDisplay+hDiagram);
 
 		//wator.Get(pcData,lenData);
 		RenderDisplay(wator, dc, rcDisplay);
@@ -90,20 +91,21 @@ void Renderer::RenderDisplay(wator::ISimulation					 &wator,
 {
 	try
 	{
-		tbase2::windows::gdi::Brush brWater(m_colorWater);
-		tbase2::windows::gdi::Brush brFish(m_colorFish);
-		tbase2::windows::gdi::Brush brShark(m_colorShark);
-		tbase2::windows::gdi::Pen   pnWater(PS_SOLID,1,m_colorWater);
-		tbase2::windows::gdi::Pen   pnFish(PS_SOLID,1,m_colorFish);
-		tbase2::windows::gdi::Pen   pnShark(PS_SOLID,1,m_colorShark);
-		unsigned					x		= 0;
-		unsigned					y	    = 0;
+		const wator::SIMULATION_PARAMETERS& parameter = wator.Parameter;
+		tbase2::windows::gdi::Brush			brWater(m_colorWater);
+		tbase2::windows::gdi::Brush			brFish(m_colorFish);
+		tbase2::windows::gdi::Brush			brShark(m_colorShark);
+		tbase2::windows::gdi::Pen			pnWater(PS_SOLID,1,m_colorWater);
+		tbase2::windows::gdi::Pen			pnFish(PS_SOLID,1,m_colorFish);
+		tbase2::windows::gdi::Pen			pnShark(PS_SOLID,1,m_colorShark);
+		unsigned							x		= 0;
+		unsigned							y	    = 0;
 
-		const unsigned uUnitW = rcDst.width() / wator.Width;
-		const unsigned uUnitH = rcDst.height() / wator.Height;
-		const unsigned uDeltaX = (rcDst.width() - (uUnitW * wator.Width)) / 2;
-		const unsigned uDeltaY = (rcDst.height() - (uUnitH * wator.Height)) / 2;
-		const unsigned lenData = wator.Width * wator.Height;
+		const unsigned uUnitW = rcDst.width() / parameter.Width;
+		const unsigned uUnitH = rcDst.height() / parameter.Height;
+		const unsigned uDeltaX = (rcDst.width() - (uUnitW * parameter.Width)) / 2;
+		const unsigned uDeltaY = (rcDst.height() - (uUnitH * parameter.Height)) / 2;
+		const unsigned lenData = parameter.Width * parameter.Height;
 
 		x = uDeltaX;
 		y = uDeltaY;
@@ -132,7 +134,7 @@ void Renderer::RenderDisplay(wator::ISimulation					 &wator,
 
 			Rectangle(dc,x,y,x+uUnitW,y+uUnitH);
 			x += uUnitW;
-			if((u+1)%wator.Width==0)
+			if ((u + 1) % parameter.Width == 0)
 			{
 				x = uDeltaX;
 				y += uUnitH;
@@ -156,6 +158,7 @@ void Renderer::RenderDiagram(wator::ISimulation					 &wator,
 {
 	try
 	{
+		const wator::SIMULATION_PARAMETERS& parameter = wator.Parameter;
 		tbase2::windows::gdi::Brush brPaper(m_colorPaper);
 		tbase2::windows::gdi::Pen   pnPaper(PS_SOLID,1,m_colorPaper);
 
@@ -169,7 +172,7 @@ void Renderer::RenderDiagram(wator::ISimulation					 &wator,
 		if(uWRemain > 200)
 		{
 			tbase2::windows::gdi::Font fntGraph(dc,6,gl_strDlgFont.c_str());
-			const unsigned			   uMaxItems = wator.Width * wator.Height;
+			const unsigned			   uMaxItems = parameter.Width * parameter.Height;
 
 			dc.SetFont(fntGraph);
 

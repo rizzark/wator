@@ -146,13 +146,14 @@ bool DlgSettings::OnCtlColorEdit(HDC	hdc,
 
 void DlgSettings::DataToDialog()
 {
-	m_edfWidth.SetValue(m_ws.Width);
-	m_edfHeight.SetValue(m_ws.Height);
-	m_edfFishStart.SetValue(m_ws.FishStart);
-	m_edfSharkStart.SetValue(m_ws.SharkStart);
-	m_edfFishBreed.SetValue(m_ws.FishBreed);
-	m_edfSharkBreed.SetValue(m_ws.SharkBreed);
-	m_edfSharkStarve.SetValue(m_ws.SharkStarve);
+	auto pars = m_ws.Parameter;
+	m_edfWidth.SetValue(pars.Width);
+	m_edfHeight.SetValue(pars.Height);
+	m_edfFishStart.SetValue(pars.InitialFishCount);
+	m_edfSharkStart.SetValue(pars.InitialSharkCount);
+	m_edfFishBreed.SetValue(pars.FishBreed);
+	m_edfSharkBreed.SetValue(pars.SharkBreed);
+	m_edfSharkStarve.SetValue(pars.SharkStarve);
 
 	m_rgbFish.SetValue(m_renderer.GetColorFish());
 	m_rgbShark.SetValue(m_renderer.GetColorShark());
@@ -166,13 +167,16 @@ bool DlgSettings::DialogToData(const bool flValidate)
 
 	try
 	{
-		const unsigned uWidth		= m_edfWidth.GetValue();
-		const unsigned uHeight		= m_edfHeight.GetValue();
-		const unsigned uFishStart	= m_edfFishStart.GetValue();
-		const unsigned uSharkStart	= m_edfSharkStart.GetValue();
-		const unsigned uFishBreed	= m_edfFishBreed.GetValue();
-		const unsigned uSharkBreed	= m_edfSharkBreed.GetValue();
-		const unsigned uSharkStarve = m_edfSharkStarve.GetValue();
+		wator::SIMULATION_PARAMETERS parameters;
+
+
+		parameters.Width			 = m_edfWidth.GetValue();
+		parameters.Height			 = m_edfHeight.GetValue();
+		parameters.InitialFishCount  = m_edfFishStart.GetValue();
+		parameters.InitialSharkCount = m_edfSharkStart.GetValue();
+		parameters.FishBreed		 = m_edfFishBreed.GetValue();
+		parameters.SharkBreed		 = m_edfSharkBreed.GetValue();
+		parameters.SharkStarve		 = m_edfSharkStarve.GetValue();
 		
 
 		m_renderer.SetColorFish(m_rgbFish.GetValue());
@@ -181,27 +185,26 @@ bool DlgSettings::DialogToData(const bool flValidate)
 
 		if(flValidate)
 		{
-			if(uWidth==0)
+			if(parameters.Width==0)
 				throw tbase2::validation::ValidationFailed(m_edfWidth.GetID(),tbase2::StringtableMsg(gl_Module,MSG_WIDTH_REQUIRED));
-			if(uHeight==0)
+			if(parameters.Height==0)
 				throw tbase2::validation::ValidationFailed(m_edfHeight.GetID(),tbase2::StringtableMsg(gl_Module,MSG_HEIGHT_REQUIRED));
 
-			const unsigned uMaxFields = uWidth * uHeight;
-
-			if((uFishStart+uSharkStart)>uMaxFields)
+			const unsigned uMaxFields = parameters.Width * parameters.Height;
+			if((parameters.InitialFishCount+parameters.InitialSharkCount)>uMaxFields)
 				throw tbase2::validation::ValidationFailed(m_edfFishStart.GetID(),tbase2::StringtableMsg(gl_Module,MSG_TOO_MANY_ANIMALS,1,std::to_wstring(uMaxFields).c_str()));
 
-			if(	   uWidth!=m_ws.Width 
-				|| uHeight!=m_ws.Height 
-				|| uFishStart!=m_ws.FishStart
-				|| uSharkStart!=m_ws.SharkStart)
+			if (parameters.Width != m_ws.Parameter.Width
+				|| parameters.Height != m_ws.Parameter.Height
+				|| parameters.InitialFishCount != m_ws.Parameter.InitialFishCount
+				|| parameters.InitialSharkCount != m_ws.Parameter.InitialSharkCount)
 			{
-				if(!m_flRestart)
-					throw tbase2::validation::ValidationFailed(m_edfWidth.GetID(),tbase2::StringtableMsg(gl_Module,MSG_RESTART_REQUIRED));
-				m_ws.Init(uWidth,uHeight,uFishBreed,uSharkBreed,uSharkStarve,uFishStart,uSharkStart);
+				if (!m_flRestart)
+					throw tbase2::validation::ValidationFailed(m_edfWidth.GetID(), tbase2::StringtableMsg(gl_Module, MSG_RESTART_REQUIRED));
+				m_ws.Init(parameters);
 			}
 			else
-				m_ws.SetConfig(uFishBreed,uSharkBreed,uSharkStarve);
+				m_ws.SetConfig(parameters.FishBreed, parameters.SharkBreed, parameters.SharkStarve);
 		}
 
 		flReturn = true;

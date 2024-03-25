@@ -21,33 +21,11 @@ namespace wator
 
 		Sim1();
 
-		Sim1(const unsigned width,
-			const unsigned height,
-			const unsigned uFishBreed,
-			const unsigned uSharkBreed,
-			const unsigned uSharkStarve,
-			const unsigned uFishCount,
-			const unsigned uSharkCount,
-			std::ostream* posCSVLog = NULL
-		);
-
 		virtual ~Sim1();
 
-		virtual void Init(const unsigned width,
-			const unsigned height,
-			const unsigned uFishBreed,
-			const unsigned uSharkBreed,
-			const unsigned uSharkStarve,
-			const unsigned uFishCount,
-			const unsigned uSharkCount,
-			std::ostream* posCSVLog = NULL
-		);
-
 		virtual void Init(
-			const SIMULATION_PARAMETERS& args,
-			const unsigned fishCount,
-			const unsigned sharkCount,
-			std::ostream* log = NULL
+			const SIMULATION_PARAMETERS& parameters,
+			std::ostream* posCSVLog = NULL
 		);
 
 		virtual void InitDefault(std::ostream* posCSVLog = NULL
@@ -65,18 +43,12 @@ namespace wator
 		virtual inline bool IsFish(const unsigned pos) const { return m_pbFish[pos] != 0; }
 		virtual inline bool IsShark(const unsigned pos) const { return m_pbShark[pos] != 0; }
 
+		virtual inline const SIMULATION_PARAMETERS& _getParameters() const { return m_parameters; }
+
+
 		virtual inline unsigned _getFishCount() const { return m_uFishCount; }
 		virtual inline unsigned _getSharkCount() const { return m_uSharkCount; }
 		virtual inline unsigned _getIterations() const { return m_uLoops; }
-
-		virtual inline unsigned _getWidth() const { return m_parameters.Width; }
-		virtual inline unsigned _getHeight() const { return m_parameters.Height; }
-
-		virtual inline unsigned _getSharkStart() const { return m_uSharkStart; }
-		virtual inline unsigned _getFishStart() const { return m_uFishStart; }
-		virtual inline unsigned _getFishBreed() const { return m_parameters.FishBreed; }
-		virtual inline unsigned _getSharkBreed() const { return m_parameters.SharkBreed; }
-		virtual inline unsigned _getSharkStarve() const { return m_parameters.SharkStarve; }
 
 		virtual void Step();
 
@@ -114,15 +86,7 @@ namespace wator
 
 	private:
 		SIMULATION_PARAMETERS m_parameters;
-		//unsigned	   m_uWidth;
-		//unsigned	   m_uHeight;
 		size_t		   m_sizField;
-		//unsigned	   m_uFishBreed;
-		//unsigned	   m_uSharkBreed;
-		//unsigned	   m_uSharkStarve;
-
-		unsigned	   m_uFishStart;
-		unsigned	   m_uSharkStart;
 
 		std::uint8_t* m_pbFish;
 		std::uint8_t* m_pbFishMove;

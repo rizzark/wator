@@ -40,27 +40,6 @@ m_sizHistory(5000)
 } // end - Sim1::Sim1
 
 
-Sim1::Sim1(const unsigned width,
-	const unsigned height,
-	const unsigned uFishBreed,
-	const unsigned uSharkBreed,
-	const unsigned uSharkStarve,
-	const unsigned uFishCount,
-	const unsigned uSharkCount,
-	std::ostream* posCSVLog) : m_pbFish(NULL),
-	m_pbFishMove(NULL),
-	m_pbFishBreed(NULL),
-	m_pbShark(NULL),
-	m_pbSharkMove(NULL),
-	m_pbSharkBreed(NULL),
-	m_pbSharkStarve(NULL),
-	m_posCSVLog(posCSVLog),
-	m_sizHistory(5000)
-{
-	Init(width, height, uFishBreed, uSharkBreed, uSharkStarve, uFishCount, uSharkCount);
-} // end - Sim1::Sim1
-
-
 Sim1::~Sim1()
 {
 	delete[] m_pbFish; m_pbFish = NULL;
@@ -73,14 +52,9 @@ Sim1::~Sim1()
 } // end - Sim1::~WatorSim
 
 
-void Sim1::Init(const unsigned width,
-	const unsigned height,
-	const unsigned uFishBreed,
-	const unsigned uSharkBreed,
-	const unsigned uSharkStarve,
-	const unsigned uFishCount,
-	const unsigned uSharkCount,
-	std::ostream* posCSVLog)
+void Sim1::Init(
+	const SIMULATION_PARAMETERS& parameter,
+	std::ostream*				 posCSVLog)
 {
 	unsigned u = 0;
 
@@ -92,14 +66,8 @@ void Sim1::Init(const unsigned width,
 	delete[] m_pbSharkBreed; m_pbSharkBreed = NULL;
 	delete[] m_pbSharkStarve; m_pbSharkStarve = NULL;
 
-	m_parameters.Width = width;
-	m_parameters.Height = height;
-	m_sizField = width * height;
-	m_parameters.FishBreed = uFishBreed;
-	m_parameters.SharkBreed = uSharkBreed;
-	m_parameters.SharkStarve = uSharkStarve;
-	m_uFishStart = uFishCount;
-	m_uSharkStart = uSharkCount;
+	m_parameters = parameter;
+	m_sizField = parameter.Width * parameter.Height;
 	m_pbFish = new std::uint8_t[m_sizField];
 	m_pbFishMove = new std::uint8_t[m_sizField];
 	m_pbFishBreed = new std::uint8_t[m_sizField];
@@ -114,36 +82,6 @@ void Sim1::Init(const unsigned width,
 } // end - Sim1::Init
 
 
-void Sim1::Init(const SIMULATION_PARAMETERS& args, const unsigned fishCount, const unsigned sharkCount, std::ostream* log)
-{
-	unsigned u = 0;
-
-	delete[] m_pbFish; m_pbFish = NULL;
-	delete[] m_pbFishMove; m_pbFishMove = NULL;
-	delete[] m_pbFishBreed; m_pbFishBreed = NULL;
-	delete[] m_pbShark; m_pbShark = NULL;
-	delete[] m_pbSharkMove; m_pbSharkMove = NULL;
-	delete[] m_pbSharkBreed; m_pbSharkBreed = NULL;
-	delete[] m_pbSharkStarve; m_pbSharkStarve = NULL;
-
-	m_parameters = args;
-
-	m_sizField = m_parameters.Width * m_parameters.Height;
-	m_uFishStart = fishCount;
-	m_uSharkStart = sharkCount;
-	m_pbFish = new std::uint8_t[m_sizField];
-	m_pbFishMove = new std::uint8_t[m_sizField];
-	m_pbFishBreed = new std::uint8_t[m_sizField];
-	m_pbShark = new std::uint8_t[m_sizField];
-	m_pbSharkMove = new std::uint8_t[m_sizField];
-	m_pbSharkBreed = new std::uint8_t[m_sizField];
-	m_pbSharkStarve = new std::uint8_t[m_sizField];
-
-	m_vHistory.clear();
-	Reset();
-	SetLog(log);
-} // end - Init
-
 void Sim1::InitDefault(std::ostream* posCSVLog)
 {
 	SIMULATION_PARAMETERS args;
@@ -153,8 +91,10 @@ void Sim1::InitDefault(std::ostream* posCSVLog)
 	args.FishBreed = DEFAULT_FISHBREED;
 	args.SharkBreed = DEFAULT_SHARKBREED;
 	args.SharkStarve = DEFAULT_SHARKSTARVE;
+	args.InitialFishCount = DEFAULT_FISHCOUNT;
+	args.InitialSharkCount = DEFAULT_SHARKCOUNT;
 
-	Init(DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_FISHBREED, DEFAULT_SHARKBREED, DEFAULT_SHARKSTARVE, DEFAULT_FISHCOUNT, DEFAULT_SHARKCOUNT, posCSVLog);
+	Init(args, posCSVLog);
 } // end - Sim1::InitDefault
 
 
@@ -180,7 +120,7 @@ void Sim1::Reset()
 
 	m_vHistory.clear();
 	ClearFields();
-	for (u = 0; u < m_uFishStart; u++)
+	for (u = 0; u < m_parameters.InitialFishCount; u++)
 	{
 		unsigned uRandom = 0;
 
@@ -192,7 +132,7 @@ void Sim1::Reset()
 		m_uFishCount++;
 	}
 
-	for (u = 0; u < m_uSharkStart; u++)
+	for (u = 0; u < m_parameters.InitialSharkCount; u++)
 	{
 		unsigned uRandom = 0;
 
