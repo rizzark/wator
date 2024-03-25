@@ -7,6 +7,8 @@ $HeadURL$
 
 #pragma once
 
+#include "RingBuffer.h"
+
 class Renderer
 {
 	public:
@@ -15,7 +17,9 @@ class Renderer
 
 			virtual ~Renderer();
 
-			virtual void Render(wator::ISimulation					&wator,
+			virtual void Render(const wator::SIMULATION_PARAMETERS& parameter,
+								const wator::SIMULATION_STATUS&		status,
+								RingBuffer<HISTORIC_DATA>&			history,
 								tbase2::windows::gdi::DeviceContext &dc,
 								const unsigned						width,
 								const unsigned						height
@@ -31,18 +35,21 @@ class Renderer
 			virtual inline COLORREF GetColorWater() const	{return m_colorWater;}
 
 	protected:
-				virtual void RenderDisplay(wator::ISimulation				   &wator,
+				virtual void RenderDisplay(const wator::SIMULATION_PARAMETERS  &parameter,
+										   const std::string& data,
 										   tbase2::windows::gdi::DeviceContext &dc,
 										   const tbase2::windows::gdi::Rect	   &rcDst
 				);
 
-				virtual void RenderDiagram(wator::ISimulation				   &wator,
+				virtual void RenderDiagram(const wator::SIMULATION_PARAMETERS& parameter, 
+										   const wator::SIMULATION_STATUS	   &status,
+										   RingBuffer<HISTORIC_DATA>		   &history,
 										   tbase2::windows::gdi::DeviceContext &dc,
 										   const tbase2::windows::gdi::Rect	   &rcDst
 				);
 
 
-				virtual RECT RenderText(wator::ISimulation					&wator,
+				virtual RECT RenderText(const wator::SIMULATION_STATUS		&status,
 									    tbase2::windows::gdi::DeviceContext &dc,
 										const tbase2::windows::gdi::Rect	&rcDst
 				);

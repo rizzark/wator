@@ -8,6 +8,7 @@ $HeadURL$
 #pragma once
 
 #include <memory>
+#include <queue>
 
 
 #include <tbase2.h>
@@ -18,3 +19,11 @@ $HeadURL$
 #include "../watorsim/watorsim.h"
 
 static const std::wstring gl_strDlgFont = L"MS Shell Dlg";
+
+
+struct HISTORIC_DATA
+{
+	unsigned FishCount;
+	unsigned SharkCount;
+};
+

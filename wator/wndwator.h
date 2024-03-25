@@ -8,6 +8,7 @@ $HeadURL$
 #pragma once
 
 #include "renderer.h"
+#include "RingBuffer.h"
 
 
 class WndWator : public tbase2::windows::gui::Wnd
@@ -84,5 +85,9 @@ class WndWator : public tbase2::windows::gui::Wnd
 			int							  m_iDisplayPane;
 			int							  m_iStatisticPane;
 			unsigned					  m_uIntervall;
+
+			wator::SIMULATION_STATUS m_status;
+			RingBuffer<HISTORIC_DATA> m_history;
+
 };
 

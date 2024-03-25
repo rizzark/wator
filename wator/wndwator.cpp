@@ -44,7 +44,8 @@ WndWator::WndWator(wator::ISimulation &wator,
 												 m_flRunning(false),
 												 m_iDisplayPane(-1),
 												 m_iStatisticPane(-1),
-												 m_uIntervall(DlgSettings::DEFAULT_INTERVALL)
+												 m_uIntervall(DlgSettings::DEFAULT_INTERVALL),
+												 m_history(5000)
 {
 	try
 	{
@@ -329,9 +330,16 @@ void WndWator::OnSingleStep()
 {
 	tbase2::windows::gdi::DeviceContext dc(*this);
 
-	m_wator.Step();
-	const unsigned uFishCount  = m_wator.FishCount;
-	const unsigned uSharkCount = m_wator.SharkCount;
+	m_status = m_wator.Step();
+	const unsigned uFishCount  = m_status.FishCount;
+	const unsigned uSharkCount = m_status.SharkCount;
+
+	HISTORIC_DATA data;
+	data.FishCount = m_status.FishCount;
+	data.SharkCount = m_status.SharkCount;
+	m_history.push(data);
+
+
 	UpdateDisplay(dc);
 
 	if(uFishCount==0 || uSharkCount==0)
@@ -375,7 +383,7 @@ void WndWator::UpdateDisplay(tbase2::windows::gdi::DeviceContext &dc)
 		tbase2::windows::gdi::Bitmap		bmpBuffer(dc,rcRender.width(),rcRender.height());
 		tbase2::windows::gdi::DeviceContext dcTmp(dc,bmpBuffer);
 
-		m_Renderer.Render(m_wator,dcTmp,rcRender.width(),rcRender.height());
+		m_Renderer.Render(m_wator.Parameter, m_status, m_history, dcTmp,rcRender.width(),rcRender.height());
 		BitBlt(dc,0,0,rcRender.width(),rcRender.height(),dcTmp,0,0,SRCCOPY);
 	}
 	catch(std::exception &error)

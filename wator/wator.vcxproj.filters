@@ -47,6 +47,9 @@
     <ClInclude Include="renderer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="RingBuffer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="wator.rc">

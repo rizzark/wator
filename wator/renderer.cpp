@@ -53,14 +53,15 @@ void Renderer::SetDefault()
 } // end - Renderer::SetDefault
 
 
-void Renderer::Render(wator::ISimulation				  &wator,
+void Renderer::Render(const wator::SIMULATION_PARAMETERS  &parameter,
+					  const wator::SIMULATION_STATUS&     status,
+					  RingBuffer<HISTORIC_DATA>&		  history,
 					  tbase2::windows::gdi::DeviceContext &dc,
 					  const unsigned					  width,
 					  const unsigned					  height)
 {
 	try
 	{
-		const wator::SIMULATION_PARAMETERS& parameter = wator.Parameter;
 		const size_t						lenData = parameter.Width * parameter.Height;
 		tbase2::buffer						bfData(lenData);
 		char								*pcData = reinterpret_cast<char*>(bfData.getBuffer());
@@ -70,9 +71,9 @@ void Renderer::Render(wator::ISimulation				  &wator,
 		tbase2::windows::gdi::Rect			rcDiagram(0,hDisplay+1,width,hDisplay+hDiagram);
 
 		//wator.Get(pcData,lenData);
-		RenderDisplay(wator, dc, rcDisplay);
+		RenderDisplay(parameter, status.Data, dc, rcDisplay);
 		if (hDiagram)
-			RenderDiagram(wator, dc, rcDiagram);
+			RenderDiagram(parameter, status, history, dc, rcDiagram);
 	}
 	catch(std::exception &error)
 	{
@@ -85,13 +86,16 @@ void Renderer::Render(wator::ISimulation				  &wator,
 } // end - Renderer::Render
 
 
-void Renderer::RenderDisplay(wator::ISimulation					 &wator,
+void Renderer::RenderDisplay(const wator::SIMULATION_PARAMETERS	 &parameter,
+							 const std::string&					 data,
 							 tbase2::windows::gdi::DeviceContext &dc,
 							 const tbase2::windows::gdi::Rect	 &rcDst)
 {
+	if (data.length() == 0)
+		return;
+
 	try
 	{
-		const wator::SIMULATION_PARAMETERS& parameter = wator.Parameter;
 		tbase2::windows::gdi::Brush			brWater(m_colorWater);
 		tbase2::windows::gdi::Brush			brFish(m_colorFish);
 		tbase2::windows::gdi::Brush			brShark(m_colorShark);
@@ -113,12 +117,12 @@ void Renderer::RenderDisplay(wator::ISimulation					 &wator,
 		dc.SetPen(pnWater);
 		for(unsigned u=0; u<lenData; u++)
 		{
-			if(wator.IsFish(u))
+			if (data[u] == parameter.FishSymbol)
 			{
 				dc.SetBrush(brFish);
 				dc.SetPen(pnFish);
 			}
-			else if (wator.IsShark(u))
+			else if (data[u] == parameter.SharkSymbol)
 			{
 				dc.SetBrush(brShark);
 				dc.SetPen(pnShark);
@@ -152,13 +156,14 @@ void Renderer::RenderDisplay(wator::ISimulation					 &wator,
 } // end - Renderer::RenderDisplay
 
 
-void Renderer::RenderDiagram(wator::ISimulation					 &wator,
+void Renderer::RenderDiagram(const wator::SIMULATION_PARAMETERS& parameter, 
+							 const wator::SIMULATION_STATUS		 &status,
+							 RingBuffer<HISTORIC_DATA>			 &history,
 							 tbase2::windows::gdi::DeviceContext &dc,
 							 const tbase2::windows::gdi::Rect	 &rcDst)
 {
 	try
 	{
-		const wator::SIMULATION_PARAMETERS& parameter = wator.Parameter;
 		tbase2::windows::gdi::Brush brPaper(m_colorPaper);
 		tbase2::windows::gdi::Pen   pnPaper(PS_SOLID,1,m_colorPaper);
 
@@ -166,7 +171,7 @@ void Renderer::RenderDiagram(wator::ISimulation					 &wator,
 		dc.SetBrush(brPaper);
 		dc.Rectangle(rcDst);
 
-		tbase2::windows::gdi::Rect rcText = RenderText(wator,dc,rcDst);
+		tbase2::windows::gdi::Rect rcText = RenderText(status,dc,rcDst);
 
 		const unsigned uWRemain = rcDst.width() - rcText.width();
 		if(uWRemain > 200)
@@ -201,20 +206,18 @@ void Renderer::RenderDiagram(wator::ISimulation					 &wator,
 			const double			     dYScale    = static_cast<double>(rcGraph.height()) / static_cast<double>(uMaxItems);
 			const double			     dYStep		= static_cast<double>(rcGraph.height()) / 5 / dYScale;
 			const unsigned			     uValueStep = tbase2::round<unsigned>(dYStep);
-			const watorhistory		     &vHistory	= wator.GetHistory();
 
 				
-			if(vHistory.size()>0)
+			if(history.length()>0)
 			{
 				std::vector<POINT> vPtFish;
 				std::vector<POINT> vPtShark;
 
 				int x = x2;
-				for(watorhistory::const_reverse_iterator it=vHistory.rbegin(); 
-					it!=vHistory.rend() && x>x1; it++,x--)
+				for (int i = history.length(); i > 0 && x>x1; i--, x--)
 				{
-					const unsigned uFishCount  = it->first;
-					const unsigned uSharkCount = it->second;
+					const unsigned uFishCount  = history[i-1].FishCount;
+					const unsigned uSharkCount = history[i-1].SharkCount;
 
 					vPtFish.push_back(tbase2::windows::gdi::Point(x,y2 - tbase2::round<unsigned>(uFishCount * dYScale)));
 					vPtShark.push_back(tbase2::windows::gdi::Point(x,y2 - tbase2::round<unsigned>(uSharkCount * dYScale)));
@@ -262,17 +265,6 @@ void Renderer::RenderDiagram(wator::ISimulation					 &wator,
 				MoveToEx(dc,x,y1,NULL);
 				LineTo(dc,x,y2);
 			}
-
-
-
-
-
-
-
-
-
-
-
 		}
 	}
 	catch(std::exception &error)
@@ -286,7 +278,7 @@ void Renderer::RenderDiagram(wator::ISimulation					 &wator,
 } // end - Renderer::RenderDiagram
 
 
-RECT Renderer::RenderText(wator::ISimulation				  &wator,
+RECT Renderer::RenderText(const wator::SIMULATION_STATUS	  &status,
 						  tbase2::windows::gdi::DeviceContext &dc,
 						  const tbase2::windows::gdi::Rect	  &rcDst)
 {
@@ -297,9 +289,9 @@ RECT Renderer::RenderText(wator::ISimulation				  &wator,
 		const std::wstring			wstrFish		   = gl_Module.String(IDS_FISHES);
 		const std::wstring			wstrShark		   = gl_Module.String(IDS_SHARKS);
 		const std::wstring			wstrIterations	   = gl_Module.String(IDS_CYCLES);
-		const std::wstring			wstrFishCount	   = tbase2::localize::to_locstring<wchar_t>(wator.FishCount,m_locale);
-		const std::wstring			wstrSharkCount	   = tbase2::localize::to_locstring<wchar_t>(wator.SharkCount,m_locale);
-		const std::wstring			wstrIterationCount = tbase2::localize::to_locstring<wchar_t>(wator.Iterations,m_locale);
+		const std::wstring			wstrFishCount	   = tbase2::localize::to_locstring<wchar_t>(status.FishCount,m_locale);
+		const std::wstring			wstrSharkCount	   = tbase2::localize::to_locstring<wchar_t>(status.SharkCount,m_locale);
+		const std::wstring			wstrIterationCount = tbase2::localize::to_locstring<wchar_t>(status.Iterations,m_locale);
 		tbase2::windows::gdi::Font	fntText(dc,12,gl_strDlgFont.c_str());
 		SIZE						sizeTitles = {0,0};
 		SIZE						sizeValues = {0,0};
