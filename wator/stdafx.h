@@ -15,6 +15,6 @@ $HeadURL$
 #include "resource.h"
 
 
-#include "watorsim/watorsim.h"
+#include "../watorsim/watorsim.h"
 
 static const std::wstring gl_strDlgFont = L"MS Shell Dlg";
